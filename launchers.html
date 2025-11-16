@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Game Launchers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+            margin-bottom: 50px;
+        }
+
+        .launchers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .launcher-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .launcher-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .launcher-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            color: white;
+        }
+
+        .launcher-content {
+            padding: 25px;
+        }
+
+        .launcher-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .launcher-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 48px;
+        }
+
+        .launcher-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 60px;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .launchers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Anime Game Launchers</h1>
+        <p class="subtitle">Linux launchers for your favorite anime games with telemetry disabling and automatic patching</p>
+
+        <div class="launchers-grid" id="launchersGrid"></div>
+
+        <footer>
+            <p>All launchers are maintained by the <a href="https://github.com/an-anime-team" target="_blank">An Anime Team</a></p>
+            <p>Join their <a href="https://discord.gg/ck37X6UWBp" target="_blank">Discord community</a> for support</p>
+        </footer>
+    </div>
+
+    <script>
+        const launchers = [
+            {
+                name: "An Anime Game Launcher",
+                description: "An Anime Game launcher for Linux with telemetry disabling",
+                icon: "🎲",
+                repo: "https://github.com/an-anime-team/an-anime-game-launcher",
+                installGuide: "https://github.com/an-anime-team/an-anime-game-launcher#installation"
+            },
+            {
+                name: "Honkers Launcher",
+                description: "Honkers launcher for Linux with automatic patching and telemetry disabling",
+                icon: "🚀",
+                repo: "https://github.com/an-anime-team/honkers-launcher",
+                installGuide: "https://github.com/an-anime-team/honkers-launcher#installation"
+            },
+            {
+                name: "The Honkers Railway Launcher",
+                description: "The Honkers Railway launcher for Linux with automatic patching and telemetry disabling",
+                icon: "🚂",
+                repo: "https://github.com/an-anime-team/the-honkers-railway-launcher",
+                installGuide: "https://github.com/an-anime-team/the-honkers-railway-launcher#installation"
+            },
+            {
+                name: "Sleepy Launcher",
+                description: "Sleepy game launcher for Linux with telemetry disabling",
+                icon: "😴",
+                repo: "https://github.com/an-anime-team/sleepy-launcher",
+                installGuide: "https://github.com/an-anime-team/sleepy-launcher#installation"
+            }
+        ];
+
+        function createLauncherCard(launcher, index) {
+            const card = document.createElement('div');
+            card.className = 'launcher-card fade-in';
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            card.innerHTML = `
+                <div class="launcher-image">${launcher.icon}</div>
+                <div class="launcher-content">
+                    <div class="launcher-title">${launcher.name}</div>
+                    <div class="launcher-description">${launcher.description}</div>
+                    <div class="launcher-links">
+                        <a href="${launcher.installGuide}" target="_blank" class="btn btn-primary">📖 Install Guide</a>
+                        <a href="${launcher.repo}" target="_blank" class="btn btn-secondary">GitHub</a>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function initializeLaunchers() {
+            const grid = document.getElementById('launchersGrid');
+            launchers.forEach((launcher, index) => {
+                const card = createLauncherCard(launcher, index);
+                grid.appendChild(card);
+            });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeLaunchers);
+        } else {
+            initializeLaunchers();
+        }
+    </script>
+</body>
+</html>
