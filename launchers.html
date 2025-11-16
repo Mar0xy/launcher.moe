@@ -30,6 +30,17 @@
             font-size: 3em;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        h1 img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
 
         .subtitle {
@@ -181,28 +192,30 @@
             z-index: 1000;
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         }
 
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .modal-content {
             background: white;
             border-radius: 20px;
-            max-width: 900px;
+            max-width: 1200px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
             animation: slideUp 0.3s ease;
+            margin: auto;
         }
 
         @keyframes slideUp {
@@ -264,6 +277,32 @@
 
         .modal-body {
             padding: 30px;
+            display: grid;
+            gap: 30px;
+        }
+
+        @media (min-width: 1024px) {
+            .modal-body {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .modal-left {
+                display: flex;
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .modal-right {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .modal-left,
+            .modal-right {
+                display: contents;
+            }
         }
 
         .modal-description {
@@ -439,7 +478,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Anime Game Launchers</h1>
+        <h1>
+            <img src="https://avatars.githubusercontent.com/u/208668168?s=200&v=4" alt="Launcher.moe">
+            Launcher.moe
+        </h1>
         <p class="subtitle">Linux launchers for your favorite anime games with telemetry disabling and automatic patching</p>
 
         <div class="launchers-grid" id="launchersGrid"></div>
@@ -608,26 +650,30 @@
                         <button class="modal-close" onclick="closeModal()">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <div class="modal-description" id="modalDescription"></div>
-                        
-                        <div class="modal-info">
-                            <h3>✨ Key Features</h3>
-                            <ul id="modalFeatures"></ul>
-                        </div>
-
-                        <div class="slider-container">
-                            <h3>📸 Screenshots</h3>
-                            <div class="slider">
-                                <div class="slider-wrapper" id="sliderWrapper"></div>
-                                <button class="slider-button prev" onclick="previousSlide()">‹</button>
-                                <button class="slider-button next" onclick="nextSlide()">›</button>
+                        <div class="modal-left">
+                            <div class="modal-description" id="modalDescription"></div>
+                            
+                            <div class="modal-info">
+                                <h3>✨ Key Features</h3>
+                                <ul id="modalFeatures"></ul>
                             </div>
-                            <div class="slider-dots" id="sliderDots"></div>
+
+                            <div class="modal-actions">
+                                <a id="modalInstallBtn" href="#" target="_blank" class="btn btn-primary">📖 Install Guide</a>
+                                <a id="modalGithubBtn" href="#" target="_blank" class="btn btn-secondary">GitHub Repository</a>
+                            </div>
                         </div>
 
-                        <div class="modal-actions">
-                            <a id="modalInstallBtn" href="#" target="_blank" class="btn btn-primary">📖 Install Guide</a>
-                            <a id="modalGithubBtn" href="#" target="_blank" class="btn btn-secondary">GitHub Repository</a>
+                        <div class="modal-right">
+                            <div class="slider-container">
+                                <h3>📸 Screenshots</h3>
+                                <div class="slider">
+                                    <div class="slider-wrapper" id="sliderWrapper"></div>
+                                    <button class="slider-button prev" onclick="previousSlide()">‹</button>
+                                    <button class="slider-button next" onclick="nextSlide()">›</button>
+                                </div>
+                                <div class="slider-dots" id="sliderDots"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
