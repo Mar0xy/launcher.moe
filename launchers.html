@@ -63,13 +63,18 @@
         .launcher-image {
             width: 100%;
             height: 200px;
-            object-fit: cover;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4em;
-            color: white;
+            padding: 30px;
+        }
+
+        .launcher-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
 
         .launcher-content {
@@ -168,6 +173,268 @@
                 transform: translateY(0);
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+            color: white;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-header img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 2em;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-description {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .modal-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .modal-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        .modal-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .modal-info li {
+            padding: 8px 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-info li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Image Slider Styles */
+        .slider-container {
+            margin-bottom: 30px;
+        }
+
+        .slider-container h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        .slider {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .slider-slide {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .slider-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #333;
+            font-size: 2em;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .slider-button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slider-button.prev {
+            left: 10px;
+        }
+
+        .slider-button.next {
+            right: 10px;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background: #667eea;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5em;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .slider-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5em;
+            }
+
+            .modal-actions .btn {
+                min-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -187,33 +454,118 @@
         const launchers = [
             {
                 name: "An Anime Game Launcher",
-                description: "An Anime Game launcher for Linux with telemetry disabling",
-                icon: "🎲",
+                shortDescription: "An Anime Game launcher for Linux with telemetry disabling",
+                fullDescription: "A feature-rich launcher for anime-themed games on Linux, providing automatic game updates, Wine/Proton management, and telemetry disabling for privacy. Supports both modern and classic UI themes with extensive customization options.",
+                icon: "https://raw.githubusercontent.com/an-anime-team/an-anime-game-launcher/main/assets/images/icon.png",
                 repo: "https://github.com/an-anime-team/an-anime-game-launcher",
-                installGuide: "https://github.com/an-anime-team/an-anime-game-launcher#installation"
+                repoShort: "an-anime-game-launcher",
+                installGuide: "https://github.com/an-anime-team/an-anime-game-launcher#installation",
+                features: [
+                    "Automatic game updates and patching",
+                    "Telemetry disabling for enhanced privacy",
+                    "Modern and Classic UI themes",
+                    "Wine/Proton version management",
+                    "DXVK/VKD3D configuration",
+                    "Game settings presets"
+                ],
+                screenshots: [
+                    "main-modern.png",
+                    "main-modern-dark.png",
+                    "settings-modern.png",
+                    "settings-modern-dark.png",
+                    "main-classic.png",
+                    "main-classic-dark.png",
+                    "settings-classic.png",
+                    "settings-classic-dark.png"
+                ]
             },
             {
                 name: "Honkers Launcher",
-                description: "Honkers launcher for Linux with automatic patching and telemetry disabling",
-                icon: "🚀",
+                shortDescription: "Honkers launcher for Linux with automatic patching and telemetry disabling",
+                fullDescription: "A dedicated launcher designed for Honkers game on Linux, featuring automatic patch management, telemetry blocking, and seamless Wine/Proton integration. Offers both modern and classic interface styles.",
+                icon: "https://raw.githubusercontent.com/an-anime-team/honkers-launcher/main/assets/images/icon.png",
                 repo: "https://github.com/an-anime-team/honkers-launcher",
-                installGuide: "https://github.com/an-anime-team/honkers-launcher#installation"
+                repoShort: "honkers-launcher",
+                installGuide: "https://github.com/an-anime-team/honkers-launcher#installation",
+                features: [
+                    "Automatic patching system",
+                    "Telemetry disabling",
+                    "Multiple UI theme options",
+                    "Wine/Proton compatibility layer",
+                    "FPS unlock support",
+                    "Custom game settings"
+                ],
+                screenshots: [
+                    "logo.png",
+                    "main-modern.png",
+                    "main-modern-dark.png",
+                    "settings-modern.png",
+                    "settings-modern-dark.png",
+                    "main-classic.png",
+                    "main-classic-dark.png",
+                    "settings-classic.png",
+                    "settings-classic-dark.png"
+                ]
             },
             {
                 name: "The Honkers Railway Launcher",
-                description: "The Honkers Railway launcher for Linux with automatic patching and telemetry disabling",
-                icon: "🚂",
+                shortDescription: "The Honkers Railway launcher for Linux with automatic patching and telemetry disabling",
+                fullDescription: "A specialized launcher for The Honkers Railway game on Linux. Features comprehensive patch management, privacy protection through telemetry disabling, and flexible Wine/Proton configuration with both modern and classic UI options.",
+                icon: "https://raw.githubusercontent.com/an-anime-team/the-honkers-railway-launcher/main/assets/images/icon.png",
                 repo: "https://github.com/an-anime-team/the-honkers-railway-launcher",
-                installGuide: "https://github.com/an-anime-team/the-honkers-railway-launcher#installation"
+                repoShort: "the-honkers-railway-launcher",
+                installGuide: "https://github.com/an-anime-team/the-honkers-railway-launcher#installation",
+                features: [
+                    "Automatic game patching",
+                    "Privacy-focused telemetry blocking",
+                    "Modern and Classic themes",
+                    "Wine/Proton management",
+                    "Game performance optimization",
+                    "Easy configuration interface"
+                ],
+                screenshots: [
+                    "logo.png",
+                    "main-modern.png",
+                    "main-modern-dark.png",
+                    "settings-modern.png",
+                    "settings-modern-dark.png",
+                    "main-classic.png",
+                    "main-classic-dark.png",
+                    "settings-classic.png",
+                    "settings-classic-dark.png"
+                ]
             },
             {
                 name: "Sleepy Launcher",
-                description: "Sleepy game launcher for Linux with telemetry disabling",
-                icon: "😴",
+                shortDescription: "Sleepy game launcher for Linux with telemetry disabling",
+                fullDescription: "A streamlined launcher for sleepy-themed games on Linux, providing essential features like telemetry disabling and Wine/Proton integration. Designed for a comfortable gaming experience with customizable UI themes.",
+                icon: "https://raw.githubusercontent.com/an-anime-team/sleepy-launcher/main/assets/images/icon.png",
                 repo: "https://github.com/an-anime-team/sleepy-launcher",
-                installGuide: "https://github.com/an-anime-team/sleepy-launcher#installation"
+                repoShort: "sleepy-launcher",
+                installGuide: "https://github.com/an-anime-team/sleepy-launcher#installation",
+                features: [
+                    "Telemetry disabling",
+                    "Wine/Proton support",
+                    "User-friendly interface",
+                    "Modern and Classic UI options",
+                    "Lightweight and fast",
+                    "Customizable settings"
+                ],
+                screenshots: [
+                    "main-modern.png",
+                    "main-modern-dark.png",
+                    "settings-modern.png",
+                    "settings-modern-dark.png",
+                    "main-classic.png",
+                    "main-classic-dark.png",
+                    "settings-classic.png",
+                    "settings-classic-dark.png"
+                ]
             }
         ];
+
+        let currentSlideIndex = 0;
+        let currentLauncher = null;
 
         function createLauncherCard(launcher, index) {
             const card = document.createElement('div');
@@ -221,10 +573,12 @@
             card.style.animationDelay = `${index * 0.1}s`;
 
             card.innerHTML = `
-                <div class="launcher-image">${launcher.icon}</div>
+                <div class="launcher-image">
+                    <img src="${launcher.icon}" alt="${launcher.name} icon" onerror="this.style.display='none'">
+                </div>
                 <div class="launcher-content">
                     <div class="launcher-title">${launcher.name}</div>
-                    <div class="launcher-description">${launcher.description}</div>
+                    <div class="launcher-description">${launcher.shortDescription}</div>
                     <div class="launcher-links">
                         <a href="${launcher.installGuide}" target="_blank" class="btn btn-primary">📖 Install Guide</a>
                         <a href="${launcher.repo}" target="_blank" class="btn btn-secondary">GitHub</a>
@@ -232,7 +586,154 @@
                 </div>
             `;
 
+            card.addEventListener('click', (e) => {
+                // Don't open modal if clicking on a link
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    return;
+                }
+                openModal(launcher);
+            });
+
             return card;
+        }
+
+        function createModal() {
+            const modal = document.createElement('div');
+            modal.id = 'launcherModal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle"></h2>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-description" id="modalDescription"></div>
+                        
+                        <div class="modal-info">
+                            <h3>✨ Key Features</h3>
+                            <ul id="modalFeatures"></ul>
+                        </div>
+
+                        <div class="slider-container">
+                            <h3>📸 Screenshots</h3>
+                            <div class="slider">
+                                <div class="slider-wrapper" id="sliderWrapper"></div>
+                                <button class="slider-button prev" onclick="previousSlide()">‹</button>
+                                <button class="slider-button next" onclick="nextSlide()">›</button>
+                            </div>
+                            <div class="slider-dots" id="sliderDots"></div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <a id="modalInstallBtn" href="#" target="_blank" class="btn btn-primary">📖 Install Guide</a>
+                            <a id="modalGithubBtn" href="#" target="_blank" class="btn btn-secondary">GitHub Repository</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Close modal on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+        }
+
+        function openModal(launcher) {
+            currentLauncher = launcher;
+            currentSlideIndex = 0;
+
+            const modal = document.getElementById('launcherModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalFeatures = document.getElementById('modalFeatures');
+            const modalInstallBtn = document.getElementById('modalInstallBtn');
+            const modalGithubBtn = document.getElementById('modalGithubBtn');
+
+            // Set title with icon
+            modalTitle.innerHTML = `<img src="${launcher.icon}" alt="${launcher.name} icon" onerror="this.style.display='none'">${launcher.name}`;
+            
+            // Set description
+            modalDescription.textContent = launcher.fullDescription;
+
+            // Set features
+            modalFeatures.innerHTML = launcher.features.map(feature => `<li>${feature}</li>`).join('');
+
+            // Set button links
+            modalInstallBtn.href = launcher.installGuide;
+            modalGithubBtn.href = launcher.repo;
+
+            // Load screenshots
+            loadScreenshots(launcher);
+
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('launcherModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function loadScreenshots(launcher) {
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const sliderDots = document.getElementById('sliderDots');
+
+            sliderWrapper.innerHTML = '';
+            sliderDots.innerHTML = '';
+
+            launcher.screenshots.forEach((screenshot, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slider-slide';
+                const imgUrl = `https://raw.githubusercontent.com/an-anime-team/${launcher.repoShort}/main/repository/${screenshot}`;
+                slide.innerHTML = `<img src="${imgUrl}" alt="Screenshot ${index + 1}" loading="lazy">`;
+                sliderWrapper.appendChild(slide);
+
+                const dot = document.createElement('div');
+                dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(index));
+                sliderDots.appendChild(dot);
+            });
+        }
+
+        function goToSlide(index) {
+            if (!currentLauncher) return;
+
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const dots = document.querySelectorAll('.slider-dot');
+            
+            currentSlideIndex = index;
+            sliderWrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlideIndex);
+            });
+        }
+
+        function nextSlide() {
+            if (!currentLauncher) return;
+
+            currentSlideIndex = (currentSlideIndex + 1) % currentLauncher.screenshots.length;
+            goToSlide(currentSlideIndex);
+        }
+
+        function previousSlide() {
+            if (!currentLauncher) return;
+
+            currentSlideIndex = (currentSlideIndex - 1 + currentLauncher.screenshots.length) % currentLauncher.screenshots.length;
+            goToSlide(currentSlideIndex);
         }
 
         function initializeLaunchers() {
@@ -241,6 +742,9 @@
                 const card = createLauncherCard(launcher, index);
                 grid.appendChild(card);
             });
+
+            // Create modal
+            createModal();
         }
 
         // Initialize when DOM is ready
