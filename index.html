@@ -166,6 +166,76 @@
             border-color: #bbb;
         }
 
+        /* Team Section Styles */
+        .team-section {
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+
+        .team-section h2 {
+            text-align: center;
+            color: white;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .team-member-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .team-member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .team-member-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .team-member-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .team-member-role {
+            font-size: 0.9em;
+            color: #666;
+        }
+
         footer {
             text-align: center;
             color: white;
@@ -250,6 +320,34 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+        }
+
+        .modal.closing {
+            animation: fadeOut 0.3s ease;
+        }
+
+        .modal.closing .modal-content {
+            animation: slideDown 0.3s ease;
         }
 
         .modal-header {
@@ -527,6 +625,11 @@
 
         <div class="launchers-grid" id="launchersGrid"></div>
 
+        <div class="team-section">
+            <h2>Team</h2>
+            <div class="team-grid" id="teamGrid"></div>
+        </div>
+
         <footer>
             <p>All launchers are maintained by <a href="https://github.com/an-anime-team" target="_blank">An Anime Team</a></p>
             <p>Join the <a href="https://discord.gg/ck37X6UWBp" target="_blank">Discord</a> for support</p>
@@ -748,16 +851,24 @@
 
         function closeModal() {
             const modal = document.getElementById('launcherModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
             
-            // Reset slider position to first slide
-            currentSlideIndex = 0;
-            currentLauncher = null;
-            const sliderWrapper = document.getElementById('sliderWrapper');
-            if (sliderWrapper) {
-                sliderWrapper.style.transform = 'translateX(0)';
-            }
+            // Add closing class to trigger animation
+            modal.classList.add('closing');
+            
+            // Wait for animation to complete before removing modal
+            setTimeout(() => {
+                modal.classList.remove('active');
+                modal.classList.remove('closing');
+                document.body.style.overflow = '';
+                
+                // Reset slider position to first slide
+                currentSlideIndex = 0;
+                currentLauncher = null;
+                const sliderWrapper = document.getElementById('sliderWrapper');
+                if (sliderWrapper) {
+                    sliderWrapper.style.transform = 'translateX(0)';
+                }
+            }, 300); // Match animation duration
         }
 
         function loadScreenshots(launcher) {
@@ -818,6 +929,45 @@
 
             // Create modal
             createModal();
+
+            // Load team members
+            loadTeamMembers();
+        }
+
+        async function loadTeamMembers() {
+            const teamGrid = document.getElementById('teamGrid');
+            
+            // Team members from An Anime Team organization
+            const teamMembers = [
+                { login: 'krypt0nn', role: 'Lead Developer' },
+                { login: 'Mar0xy', role: 'Developer' },
+                { login: 'mkrsym1', role: 'Developer' },
+                { login: 'cybik', role: 'Developer' },
+                { login: 'NelloKudo', role: 'Developer' },
+                { login: 'natimerry', role: 'Developer' },
+                { login: 'lunananananananana', role: 'Developer' }
+            ];
+
+            teamMembers.forEach((member, index) => {
+                const memberCard = document.createElement('a');
+                memberCard.className = 'team-member fade-in';
+                memberCard.style.animationDelay = `${index * 0.1}s`;
+                memberCard.href = `https://github.com/${member.login}`;
+                memberCard.target = '_blank';
+                memberCard.rel = 'noopener noreferrer';
+
+                memberCard.innerHTML = `
+                    <div class="team-member-avatar">
+                        <img src="https://github.com/${member.login}.png" alt="${member.login}">
+                    </div>
+                    <div class="team-member-info">
+                        <div class="team-member-name">${member.login}</div>
+                        <div class="team-member-role">${member.role}</div>
+                    </div>
+                `;
+
+                teamGrid.appendChild(memberCard);
+            });
         }
 
         // Initialize when DOM is ready
