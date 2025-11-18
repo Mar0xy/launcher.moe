@@ -937,37 +937,47 @@
         async function loadTeamMembers() {
             const teamGrid = document.getElementById('teamGrid');
             
-            // Team members from An Anime Team organization
-            const teamMembers = [
-                { login: 'krypt0nn', role: 'Lead Developer' },
-                { login: 'Mar0xy', role: 'Developer' },
-                { login: 'mkrsym1', role: 'Developer' },
-                { login: 'cybik', role: 'Developer' },
-                { login: 'NelloKudo', role: 'Developer' },
-                { login: 'natimerry', role: 'Developer' },
-                { login: 'lunananananananana', role: 'Developer' }
-            ];
+            try {
+                // Fetch team members from An Anime Team organization
+                const response = await fetch('https://api.github.com/orgs/an-anime-team/members');
+                const members = await response.json();
 
-            teamMembers.forEach((member, index) => {
-                const memberCard = document.createElement('a');
-                memberCard.className = 'team-member fade-in';
-                memberCard.style.animationDelay = `${index * 0.1}s`;
-                memberCard.href = `https://github.com/${member.login}`;
-                memberCard.target = '_blank';
-                memberCard.rel = 'noopener noreferrer';
+                // Fetch detailed info for each member to get their full name
+                const memberDetails = await Promise.all(
+                    members.map(member => 
+                        fetch(`https://api.github.com/users/${member.login}`)
+                            .then(res => res.json())
+                    )
+                );
 
-                memberCard.innerHTML = `
-                    <div class="team-member-avatar">
-                        <img src="https://github.com/${member.login}.png" alt="${member.login}">
-                    </div>
-                    <div class="team-member-info">
-                        <div class="team-member-name">${member.login}</div>
-                        <div class="team-member-role">${member.role}</div>
-                    </div>
-                `;
+                memberDetails.forEach((member, index) => {
+                    const memberCard = document.createElement('a');
+                    memberCard.className = 'team-member fade-in';
+                    memberCard.style.animationDelay = `${index * 0.1}s`;
+                    memberCard.href = member.html_url;
+                    memberCard.target = '_blank';
+                    memberCard.rel = 'noopener noreferrer';
 
-                teamGrid.appendChild(memberCard);
-            });
+                    // Use full name if available, otherwise use login
+                    const displayName = member.name || member.login;
+
+                    memberCard.innerHTML = `
+                        <div class="team-member-avatar">
+                            <img src="${member.avatar_url}" alt="${displayName}">
+                        </div>
+                        <div class="team-member-info">
+                            <div class="team-member-name">${displayName}</div>
+                            <div class="team-member-role">Developer</div>
+                        </div>
+                    `;
+
+                    teamGrid.appendChild(memberCard);
+                });
+            } catch (error) {
+                console.error('Failed to load team members:', error);
+                // Show a message if API fails
+                teamGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: 1/-1;">Unable to load team members</p>';
+            }
         }
 
         // Initialize when DOM is ready
