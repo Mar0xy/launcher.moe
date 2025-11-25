@@ -2,10 +2,9 @@
 d47d90ad-3d34-4267-825c-e4bc736bbbcc
 
 # moe.launcher.honkers-launcher
-67a4d258-31c4-49c6-b914-13eff0194621
 
-# moe.launcher.honkers-railway-launcher
-4411b6e6-0615-437e-864a-3c9a3b23a132
+# moe.launcher.the-honkers-railway-launcher
+6a768cc1-13b5-49db-aa81-5be3a3b9c71a
 
 # moe.launcher.sleepy-launcher
 863dc9b7-590d-4254-a2f8-91cf3141a131
