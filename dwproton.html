@@ -259,41 +259,71 @@
         .env-source-sp { background: rgba(192,38,211,0.12); color: #e879f9; border: 1px solid rgba(192,38,211,0.25); }
 
         /* INSTALL GUIDE */
-        .install-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .install-tabs {
+            display: flex; gap: 8px; margin-bottom: 36px;
+            justify-content: center;
+        }
         .install-tab {
-            padding: 8px 20px; border-radius: 8px; font-size: 0.88em; font-weight: 600;
+            padding: 9px 24px; border-radius: 100px; font-size: 0.88em; font-weight: 600;
             cursor: pointer; border: 1px solid var(--border-subtle);
             background: var(--surface); color: var(--text-muted); transition: all 0.2s;
             font-family: inherit;
         }
-        .install-tab.active { background: rgba(124,58,237,0.15); border-color: var(--border); color: var(--accent-light); }
+        .install-tab:hover { border-color: var(--border); color: var(--text); }
+        .install-tab.active {
+            background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.5);
+            color: var(--accent-light);
+        }
         .install-panel { display: none; }
         .install-panel.active { display: block; }
-        .install-steps { display: flex; flex-direction: column; gap: 16px; }
+        /* Timeline */
+        .install-steps {
+            max-width: 620px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 0;
+            position: relative;
+        }
+        .install-steps::before {
+            content: "";
+            position: absolute; left: 19px; top: 42px; bottom: 42px; width: 2px;
+            background: linear-gradient(to bottom,
+                rgba(124,58,237,0.4) 0%, rgba(124,58,237,0.15) 70%, transparent 100%);
+        }
         .install-step {
-            display: flex; gap: 16px; align-items: flex-start;
+            display: flex; gap: 18px; align-items: flex-start;
+            padding-bottom: 12px; position: relative;
         }
+        .install-step:last-child { padding-bottom: 0; }
         .step-num {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
-            color: var(--accent-light); font-weight: 800; font-size: 0.88em;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            background: #0f0d1f; border: 2px solid rgba(124,58,237,0.55);
+            color: var(--accent-light); font-weight: 800; font-size: 0.9em;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1; margin-top: 2px;
+            box-shadow: 0 0 0 4px #09090f;
         }
-        .step-content { flex: 1; }
-        .step-title { font-size: 0.95em; font-weight: 700; margin-bottom: 5px; color: var(--text); }
-        .step-desc { font-size: 0.87em; color: var(--text-muted); line-height: 1.65; }
+        .step-card {
+            flex: 1;
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .step-card:hover { border-color: var(--border); background: var(--surface-hover); }
+        .install-step:last-child .step-card { margin-bottom: 0; }
+        .step-title { font-size: 0.95em; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+        .step-desc { font-size: 0.87em; color: var(--text-muted); line-height: 1.7; }
         .step-desc a { color: var(--accent-light); text-decoration: none; }
         .step-desc a:hover { text-decoration: underline; }
         .code-block {
             background: var(--code-bg); border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 10px;
+            border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px;
             font-family: 'SF Mono','Fira Mono','Consolas',monospace;
-            font-size: 0.84em; color: #a5f3fc; overflow-x: auto; line-height: 1.7;
+            font-size: 0.83em; color: #a5f3fc; overflow-x: auto; line-height: 1.7;
         }
         .info-box {
             background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
-            border-radius: var(--radius-sm); padding: 14px 18px; margin-top: 14px;
+            border-radius: var(--radius); padding: 14px 18px; margin-top: 16px;
             font-size: 0.86em; color: var(--text-muted); line-height: 1.7;
+            max-width: 620px; margin-left: auto; margin-right: auto;
         }
         .info-box strong { color: var(--accent-light); }
 
@@ -452,33 +482,33 @@
             <div class="install-steps">
                 <div class="install-step">
                     <div class="step-num">1</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Install ProtonPlus</div>
                         <div class="step-desc">
-                            Install ProtonPlus from Flathub — it's the easiest Proton manager for Linux.
-                            <br><a href="https://flathub.org/apps/com.vysp3r.ProtonPlus" target="_blank" rel="noopener">→ Get ProtonPlus on Flathub</a>
+                            Install ProtonPlus from Flathub — it's the easiest Proton manager for Linux.<br>
+                            <a href="https://flathub.org/apps/com.vysp3r.ProtonPlus" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px">→ Get ProtonPlus on Flathub</a>
                         </div>
                     </div>
                 </div>
                 <div class="install-step">
                     <div class="step-num">2</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Open ProtonPlus</div>
                         <div class="step-desc">Launch ProtonPlus and navigate to the install/manage Proton builds section.</div>
                     </div>
                 </div>
                 <div class="install-step">
                     <div class="step-num">3</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Find and Install DWProton</div>
-                        <div class="step-desc">Search for "dwproton" in the list and click Install. ProtonPlus handles everything automatically.</div>
+                        <div class="step-desc">Search for <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace">dwproton</code> in the list and click Install. ProtonPlus handles everything automatically.</div>
                     </div>
                 </div>
                 <div class="install-step">
                     <div class="step-num">4</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Restart Steam</div>
-                        <div class="step-desc">Restart Steam to detect the new Proton build. Then select DWProton in a game's compatibility settings.</div>
+                        <div class="step-desc">Restart Steam to detect the new Proton build. Then select DWProton in a game's compatibility settings under Properties → Compatibility.</div>
                     </div>
                 </div>
             </div>
@@ -487,7 +517,7 @@
             <div class="install-steps">
                 <div class="install-step">
                     <div class="step-num">1</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Download the latest release</div>
                         <div class="step-desc">
                             Go to the <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener">releases page</a> and download the latest <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace">dwproton-x.x.x-x86_64.tar.xz</code>.
@@ -496,7 +526,7 @@
                 </div>
                 <div class="install-step">
                     <div class="step-num">2</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Create the compatibility tools directory</div>
                         <div class="step-desc">
                             If it doesn't already exist:
@@ -506,7 +536,7 @@
                 </div>
                 <div class="install-step">
                     <div class="step-num">3</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Extract the archive</div>
                         <div class="step-desc">
                             Extract directly into the compatibility tools directory:
@@ -516,7 +546,7 @@
                 </div>
                 <div class="install-step">
                     <div class="step-num">4</div>
-                    <div class="step-content">
+                    <div class="step-card">
                         <div class="step-title">Restart Steam and select DWProton</div>
                         <div class="step-desc">Restart the Steam client and select DWProton in the game's compatibility settings under Properties → Compatibility.</div>
                     </div>
