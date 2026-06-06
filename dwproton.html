@@ -736,7 +736,7 @@ async function loadReleases() {
 
 function renderLatestRelease(tag, dateStr, body) {
     const dateHtml = dateStr
-        ? `Released ${timeAgo(dateStr)} — ${new Date(dateStr).toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}`
+        ? `Released ${timeAgo(dateStr)} - ${new Date(dateStr).toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}`
         : 'Recently released';
     document.getElementById('latestRelease').innerHTML = `
         <div class="latest-release">
@@ -749,7 +749,7 @@ function renderLatestRelease(tag, dateStr, body) {
             </div>
         </div>`;
     document.getElementById('latestHeroBadge').innerHTML =
-        `<strong style="color:var(--accent-light)">${escHTML(tag)}</strong> — released ${dateStr ? timeAgo(dateStr) : 'recently'}`;
+        `<strong style="color:var(--accent-light)">${escHTML(tag)}</strong> - released ${dateStr ? timeAgo(dateStr) : 'recently'}`;
 }
 
 function renderReleasesList(tags, dates) {
