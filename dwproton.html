@@ -711,56 +711,66 @@ async function loadRepoStats() {
 }
 
 async function loadReleases() {
+    // Use shields.io dynamic badge to proxy the Forgejo releases API (no CORS headers on dawn.wine)
+    const ENC_URL = encodeURIComponent('https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=8&page=1');
+    const BASE = `https://img.shields.io/badge/dynamic/json.json?url=${ENC_URL}`;
     try {
-        const r = await fetch('https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=8&page=1');
-        if (!r.ok) throw new Error('CORS or API error');
-        const releases = await r.json();
-        if (!releases.length) throw new Error('No releases');
-        renderLatestRelease(releases[0]);
-        renderReleasesList(releases.slice(1));
+        const [tagsD, datesD, bodyD] = await Promise.all([
+            fetch(`${BASE}&query=${encodeURIComponent('$[*].tag_name')}&label=tags`).then(r=>r.json()),
+            fetch(`${BASE}&query=${encodeURIComponent('$[*].published_at')}&label=dates`).then(r=>r.json()),
+            fetch(`${BASE}&query=${encodeURIComponent('$[0].body')}&label=body`).then(r=>r.json()),
+        ]);
+        if (tagsD.isError || !tagsD.message || tagsD.message === 'no result') throw new Error();
+
+        const tags  = tagsD.message.split(', ');
+        const dates = (!datesD.isError && datesD.message) ? datesD.message.split(', ') : [];
+        const body  = (!bodyD.isError && bodyD.message && bodyD.message !== 'no result') ? bodyD.message : '';
+
+        renderLatestRelease(tags[0], dates[0] || null, body);
+        renderReleasesList(tags.slice(1), dates.slice(1));
     } catch {
-        // Fallback to static content
         renderStaticLatest();
         renderStaticReleasesList();
     }
 }
 
-function renderLatestRelease(release) {
-    const assets = (release.assets||[]).find(a=>a.name&&a.name.endsWith('.tar.xz'));
-    const sizeMB = assets ? (assets.size/1024/1024).toFixed(0)+'&nbsp;MiB' : '';
+function renderLatestRelease(tag, dateStr, body) {
+    const dateHtml = dateStr
+        ? `Released ${timeAgo(dateStr)} — ${new Date(dateStr).toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}`
+        : 'Recently released';
     document.getElementById('latestRelease').innerHTML = `
         <div class="latest-release">
-            <div class="release-tag">
-                <span>🏷️</span> ${escHTML(release.tag_name)}
-            </div>
-            <div class="release-date">Released ${timeAgo(release.published_at)} — ${new Date(release.published_at).toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}</div>
-            <div class="release-body">${renderMarkdown(release.body||'')}</div>
+            <div class="release-tag"><span>🏷️</span> ${escHTML(tag)}</div>
+            <div class="release-date">${dateHtml}</div>
+            ${body ? `<div class="release-body">${renderMarkdown(body)}</div>` : ''}
             <div class="release-dl">
-                ${assets ? `<a href="${escAttr(assets.browser_download_url)}" class="btn btn-primary btn-sm">⬇️ Download ${escHTML(release.tag_name)}</a>
-                <span class="release-dl-size">${sizeMB}</span>` : ''}
-                <a href="${escAttr(release.html_url||'https://dawn.wine/dawn-winery/dwproton/releases/tag/'+release.tag_name)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View on Forgejo</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⬇️ Download ${escHTML(tag)}</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View on Forgejo</a>
             </div>
         </div>`;
-
     document.getElementById('latestHeroBadge').innerHTML =
-        `<strong style="color:var(--accent-light)">${escHTML(release.tag_name)}</strong> — released ${timeAgo(release.published_at)}`;
+        `<strong style="color:var(--accent-light)">${escHTML(tag)}</strong> — released ${dateStr ? timeAgo(dateStr) : 'recently'}`;
 }
 
-function renderReleasesList(releases) {
-    if (!releases.length) {
+function renderReleasesList(tags, dates) {
+    if (!tags.length) {
         document.getElementById('releasesList').innerHTML = '<p style="color:var(--text-subtle);font-size:0.88em">No previous releases to show.</p>';
         return;
     }
-    document.getElementById('releasesList').innerHTML = `<div class="release-list">${releases.map(r=>`
+    document.getElementById('releasesList').innerHTML = `<div class="release-list">${tags.map((tag, i) => {
+        const d = dates[i];
+        const dateText = d ? `${timeAgo(d)} · ${new Date(d).toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'})}` : '';
+        return `
         <div class="release-item">
             <div class="release-item-left">
-                <div class="release-item-tag">🏷️ ${escHTML(r.tag_name)}</div>
-                <div class="release-item-date">${timeAgo(r.published_at)} · ${new Date(r.published_at).toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'})}</div>
+                <div class="release-item-tag">🏷️ ${escHTML(tag)}</div>
+                ${dateText ? `<div class="release-item-date">${dateText}</div>` : ''}
             </div>
             <div class="release-item-right">
-                <a href="${escAttr(r.html_url||'https://dawn.wine/dawn-winery/dwproton/releases/tag/'+r.tag_name)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View →</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View →</a>
             </div>
-        </div>`).join('')}</div>`;
+        </div>`;
+    }).join('')}</div>`;
 }
 
 function renderStaticLatest() {
