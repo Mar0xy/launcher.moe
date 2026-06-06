@@ -245,8 +245,7 @@
         .launcher-card-name { font-size: 1.05em; font-weight: 700; line-height: 1.3; color: var(--text); }
         .launcher-card-body { padding: 18px 22px 20px; flex: 1; display: flex; flex-direction: column; }
         .launcher-card-desc { font-size: 0.88em; color: var(--text-muted); line-height: 1.65; flex: 1; margin-bottom: 16px; }
-        .launcher-card-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-        .launcher-installs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .launcher-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .install-chip {
             display: inline-flex; align-items: center; gap: 4px;
             background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
@@ -259,12 +258,6 @@
             border-radius: 100px; padding: 3px 10px;
             font-size: 0.78em; font-weight: 600; color: var(--text-subtle);
         }
-        .launcher-more {
-            font-size: 0.8em; color: var(--accent-light); font-weight: 600;
-            background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
-            border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: all 0.2s; font-family: inherit;
-        }
-        .launcher-more:hover { background: rgba(124,58,237,0.2); }
 
         /* TEAM */
         .team-row {
@@ -759,12 +752,9 @@ function renderLaunchers() {
             <div class="launcher-card-body">
                 <p class="launcher-card-desc">${escHTML(l.shortDesc)}</p>
                 <div class="launcher-card-meta">
-                    <div class="launcher-installs">
                         ${s
                             ? `<span class="install-chip">📦 ${fmtNum(s.total)}</span>${s.month ? `<span class="install-chip-month">📈 ${fmtNum(s.month)}/mo</span>` : ''}`
                             : `<span style="color:var(--text-subtle);font-size:0.85em">Loading…</span>`}
-                    </div>
-                    <button class="launcher-more">Details →</button>
                 </div>
             </div>
         </div>`;
