@@ -3,983 +3,803 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Launcher.moe</title>
+    <title>Launcher.moe — Linux Launchers for Anime Games</title>
+    <meta name="description" content="An Anime Team's Linux launchers for your favorite anime games, maintained by Dawn Winery.">
+    <link rel="icon" href="capy.png" type="image/png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #09090f;
+            --bg-2: #110f20;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.07);
+            --border: rgba(139,92,246,0.18);
+            --border-subtle: rgba(255,255,255,0.06);
+            --accent: #7c3aed;
+            --accent-mid: #9333ea;
+            --accent-light: #a78bfa;
+            --accent-2: #c026d3;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-subtle: #64748b;
+            --radius: 16px;
+            --radius-sm: 10px;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 40px 20px;
-            color: #333;
-            position: relative;
             overflow-x: hidden;
         }
-
-        #background-video {
+        .bg-glow {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-glow::before {
+            content: "";
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(124,58,237,0.16) 0%, transparent 70%);
+            top: -300px;
+            left: -200px;
+            animation: driftA 25s ease-in-out infinite;
+        }
+        .bg-glow::after {
+            content: "";
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(192,38,211,0.11) 0%, transparent 70%);
+            bottom: -200px;
+            right: -150px;
+            animation: driftB 30s ease-in-out infinite;
+        }
+        @keyframes driftA {
+            0%,100%{transform:translate(0,0)}
+            33%{transform:translate(80px,50px)}
+            66%{transform:translate(-50px,80px)}
+        }
+        @keyframes driftB {
+            0%,100%{transform:translate(0,0)}
+            40%{transform:translate(-60px,-40px)}
+            70%{transform:translate(40px,-70px)}
         }
 
-        .video-overlay {
+        /* NAV */
+        .nav {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: -1;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            background: rgba(9,9,15,0.85);
+            border-bottom: 1px solid var(--border-subtle);
         }
-
-        .container {
+        .nav-inner {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            text-align: center;
-            color: white;
-            font-size: 3em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
+            justify-content: space-between;
         }
-
-        h1 img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: var(--text);
+            font-weight: 700; font-size: 1.05em; letter-spacing: -0.01em;
         }
+        .nav-logo img { width: 26px; height: 26px; object-fit: contain; }
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.88em; font-weight: 500; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+            color: white !important; padding: 7px 18px; border-radius: 8px;
+        }
+        .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
 
-        .subtitle {
+        /* HERO */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
             text-align: center;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2em;
-            margin-bottom: 50px;
+            padding: 100px 32px 70px;
         }
-
-        .launchers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 20px 0;
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(124,58,237,0.12);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 100px; padding: 5px 16px;
+            font-size: 0.8em; color: var(--accent-light);
+            margin-bottom: 28px; font-weight: 500;
         }
-
-        .launcher-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
+        .hero-logo {
+            width: 88px; height: 88px; object-fit: contain;
+            filter: drop-shadow(0 0 40px rgba(124,58,237,0.55));
+            margin: 0 auto 22px;
+            animation: floatLogo 7s ease-in-out infinite;
+            display: block;
         }
-
-        .launcher-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        @keyframes floatLogo {
+            0%,100%{transform:translateY(0) rotate(-1deg) scaleX(-1)}
+            50%{transform:translateY(-12px) rotate(1deg) scaleX(-1)}
         }
-
-        .launcher-image {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
+        .hero h1 {
+            font-size: clamp(2.8em,7vw,5em);
+            font-weight: 800; line-height: 1.08;
+            letter-spacing: -0.03em; margin-bottom: 18px;
+            background: linear-gradient(140deg, #f1f5f9 20%, #a78bfa 60%, #c084fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-
-        .launcher-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        .hero-sub {
+            font-size: 1.15em; color: var(--text-muted);
+            margin-bottom: 38px; line-height: 1.75;
+            max-width: 520px; margin-left: auto; margin-right: auto;
         }
-
-        .launcher-content {
-            padding: 25px;
-        }
-
-        .launcher-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .launcher-description {
-            color: #666;
-            line-height: 1.6;
-            min-height: 48px;
-        }
-
-        .launcher-links {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
+        .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
         .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-align: center;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 26px; border-radius: 10px;
+            font-weight: 600; font-size: 0.92em;
+            text-decoration: none; transition: all 0.2s;
+            cursor: pointer; border: none; font-family: inherit;
         }
-
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white; box-shadow: 0 4px 20px rgba(124,58,237,0.35);
         }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: scale(1.05);
-        }
-
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.5); }
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 2px solid #ddd;
+            background: var(--surface); color: var(--text); border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--surface-hover); transform: translateY(-2px); }
+        .btn-sm { padding: 8px 18px; font-size: 0.84em; border-radius: 8px; }
+
+        /* STATS */
+        .stats-wrap { position: relative; z-index: 1; padding: 0 32px 70px; }
+        .stats-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+        }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); padding: 22px 20px; text-align: center;
+            transition: all 0.25s; backdrop-filter: blur(12px);
+        }
+        .stat-card:hover { border-color: var(--border); background: var(--surface-hover); transform: translateY(-3px); }
+        .stat-icon { font-size: 1.4em; display: block; margin-bottom: 10px; }
+        .stat-value {
+            font-size: 1.9em; font-weight: 800; color: var(--accent-light);
+            display: block; margin-bottom: 4px; letter-spacing: -0.02em;
+        }
+        .stat-label {
+            font-size: 0.77em; color: var(--text-subtle);
+            text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600;
+        }
+        @keyframes shimmer {
+            0%{background-position:-200% 0}
+            100%{background-position:200% 0}
+        }
+        .loading-val {
+            display: inline-block; min-width: 80px; min-height: 1.3em;
+            background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+            border-radius: 6px; color: transparent;
         }
 
-        .btn-secondary:hover {
-            background: #e0e0e0;
-            border-color: #bbb;
+        /* SECTION */
+        .section { position: relative; z-index: 1; padding: 70px 32px; }
+        .section-head { max-width: 1200px; margin: 0 auto 40px; }
+        .section-title { font-size: 1.9em; font-weight: 800; letter-spacing: -0.02em; }
+        .section-title span {
+            background: linear-gradient(135deg, var(--accent-light), var(--accent-2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .section-sub { color: var(--text-muted); margin-top: 8px; font-size: 0.95em; }
+        .section-divider {
+            max-width: 1200px; margin: 0 auto;
+            border: none; border-top: 1px solid var(--border-subtle);
         }
 
-        /* Team Section Styles */
-        .team-section {
-            margin-top: 60px;
-            margin-bottom: 40px;
+        /* LAUNCHERS */
+        .launchers-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(275px,1fr)); gap: 20px;
         }
-
-        .team-section h2 {
-            text-align: center;
-            color: white;
-            font-size: 2em;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        .launcher-card {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); overflow: hidden;
+            cursor: pointer; transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column;
         }
+        .launcher-card:hover {
+            transform: translateY(-6px); border-color: var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(124,58,237,0.08);
+        }
+        .launcher-card-header {
+            padding: 26px 22px;
+            background: linear-gradient(135deg,rgba(124,58,237,0.12),rgba(192,38,211,0.06));
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex; align-items: center; gap: 14px;
+        }
+        .launcher-icon {
+            width: 52px; height: 52px; object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); flex-shrink: 0;
+        }
+        .launcher-card-name { font-size: 1.05em; font-weight: 700; line-height: 1.3; color: var(--text); }
+        .launcher-card-body { padding: 18px 22px 20px; flex: 1; display: flex; flex-direction: column; }
+        .launcher-card-desc { font-size: 0.88em; color: var(--text-muted); line-height: 1.65; flex: 1; margin-bottom: 16px; }
+        .launcher-card-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .launcher-installs { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-subtle); }
+        .launcher-installs strong { color: var(--accent-light); font-weight: 700; }
+        .launcher-more {
+            font-size: 0.8em; color: var(--accent-light); font-weight: 600;
+            background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
+            border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .launcher-more:hover { background: rgba(124,58,237,0.2); }
 
+        /* TEAM */
         .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 14px;
+        }
+        .team-card {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); overflow: hidden;
+            text-decoration: none; transition: all 0.3s; display: block;
+        }
+        .team-card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+        .team-avatar { width: 100%; aspect-ratio: 1; overflow: hidden; background: var(--bg-2); }
+        .team-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .team-name {
+            padding: 10px 12px; font-size: 0.82em; font-weight: 600;
+            color: var(--text); text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .team-member {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            display: block;
+        /* SUPPORTERS */
+        .supporters-content { max-width: 1200px; margin: 0 auto; }
+        .oc-stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(165px,1fr));
+            gap: 14px; margin-bottom: 36px;
         }
-
-        .team-member:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        .oc-stat-card {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); padding: 20px; text-align: center;
         }
-
-        .team-member-avatar {
-            width: 100%;
-            aspect-ratio: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        .oc-stat-val {
+            font-size: 1.8em; font-weight: 800; color: var(--accent-light);
+            display: block; letter-spacing: -0.02em; margin-bottom: 4px;
         }
-
-        .team-member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .oc-stat-lbl {
+            font-size: 0.78em; color: var(--text-subtle);
+            text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
         }
-
-        .team-member-info {
-            padding: 20px;
-            text-align: center;
+        .backers-label {
+            font-size: 0.82em; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
         }
-
-        .team-member-name {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
+        .backers-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+        .backer-chip {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: 100px; padding: 5px 14px 5px 7px;
+            text-decoration: none; transition: all 0.2s;
         }
-
-        footer {
-            text-align: center;
-            color: white;
-            margin-top: 60px;
-            padding: 20px;
-            font-size: 0.9em;
+        .backer-chip:hover { background: var(--surface-hover); border-color: var(--border); }
+        .backer-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        .backer-chip span { font-size: 0.83em; font-weight: 500; color: var(--text); }
+        .donate-box {
+            background: linear-gradient(135deg,rgba(124,58,237,0.1),rgba(192,38,211,0.06));
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 36px; text-align: center;
         }
+        .donate-box h3 { font-size: 1.3em; font-weight: 700; margin-bottom: 8px; }
+        .donate-box p { color: var(--text-muted); font-size: 0.92em; margin-bottom: 22px; line-height: 1.6; }
 
-        footer a {
-            color: white;
-            text-decoration: underline;
+        /* FOOTER */
+        .footer { position: relative; z-index: 1; border-top: 1px solid var(--border-subtle); padding: 36px 32px; }
+        .footer-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; margin-bottom: 16px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.87em; font-weight: 500; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--text); }
+        .footer-copy { font-size: 0.82em; color: var(--text-subtle); }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 32px 20px; overflow-y: auto;
         }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
-            }
-
-            .subtitle {
-                font-size: 1em;
-            }
-
-            .launchers-grid {
-                grid-template-columns: 1fr;
-            }
+        .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+        .modal-box {
+            background: #110f20; border: 1px solid var(--border); border-radius: 20px;
+            max-width: 1050px; width: 100%; overflow: hidden;
+            animation: modalIn 0.28s ease; margin: auto; position: relative;
         }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-in;
+        @keyframes modalIn {
+            from{opacity:0;transform:translateY(24px) scale(0.98)}
+            to{opacity:1;transform:translateY(0) scale(1)}
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.8);
-            animation: fadeIn 0.3s ease;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 1200px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            animation: slideUp 0.3s ease;
-            margin: auto;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-        }
-
-        .modal.closing {
-            animation: fadeOut 0.3s ease;
-        }
-
-        .modal.closing .modal-content {
-            animation: slideDown 0.3s ease;
-        }
-
         .modal-header {
-            padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px 20px 0 0;
-            color: white;
-            position: relative;
+            padding: 26px 28px;
+            background: linear-gradient(135deg,rgba(124,58,237,0.18),rgba(192,38,211,0.08));
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
         }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 2em;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .modal-header-left { display: flex; align-items: center; gap: 14px; }
+        .modal-header-left img {
+            width: 48px; height: 48px; object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); flex-shrink: 0;
         }
-
-        .modal-header img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
-
+        .modal-header h2 { font-size: 1.45em; font-weight: 800; letter-spacing: -0.02em; }
         .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 2em;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease;
-            line-height: 1;
+            background: rgba(255,255,255,0.07); border: 1px solid var(--border-subtle);
+            color: var(--text); width: 34px; height: 34px; border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1em; transition: all 0.2s; flex-shrink: 0; font-family: inherit;
         }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .modal-close:hover { background: rgba(255,255,255,0.14); }
+        .modal-body { padding: 26px 28px; display: grid; gap: 20px; }
+        @media (min-width: 720px) { .modal-body { grid-template-columns: 1fr 1fr; } }
+        .modal-desc { color: var(--text-muted); line-height: 1.8; font-size: 0.92em; margin-bottom: 20px; }
+        .modal-feat-title {
+            font-size: 0.8em; font-weight: 700; margin-bottom: 12px; color: var(--text);
+            text-transform: uppercase; letter-spacing: 0.06em;
         }
-
-        .modal-body {
-            padding: 30px;
-            display: grid;
-            gap: 30px;
+        .modal-feat-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 22px; }
+        .modal-feat-list li { display: flex; align-items: center; gap: 9px; font-size: 0.88em; color: var(--text-muted); }
+        .modal-feat-list li::before {
+            content: ""; width: 5px; height: 5px;
+            background: var(--accent-light); border-radius: 50%; flex-shrink: 0;
         }
+        .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .modal-actions .btn { flex: 1; min-width: 140px; justify-content: center; }
 
-        @media (min-width: 1024px) {
-            .modal-body {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .modal-left {
-                display: flex;
-                flex-direction: column;
-                gap: 30px;
-            }
-
-            .modal-right {
-                display: flex;
-                flex-direction: column;
-            }
+        /* SLIDER */
+        .slider-title {
+            font-size: 0.8em; font-weight: 700; margin-bottom: 12px; color: var(--text);
+            text-transform: uppercase; letter-spacing: 0.06em;
         }
-
-        @media (max-width: 1023px) {
-            .modal-left,
-            .modal-right {
-                display: contents;
-            }
-        }
-
-        .modal-description {
-            color: #666;
-            line-height: 1.8;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-
-        .modal-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .modal-info h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 1.3em;
-        }
-
-        .modal-info ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .modal-info li {
-            padding: 8px 0;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal-info li::before {
-            content: "✓";
-            color: #667eea;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        /* Image Slider Styles */
-        .slider-container {
-            margin-bottom: 30px;
-        }
-
-        .slider-container h3 {
-            margin: 0 0 20px 0;
-            color: #333;
-            font-size: 1.3em;
-        }
-
         .slider {
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            border-radius: 10px;
-            background: #f5f5f5;
-            min-height: 400px;
-            display: flex;
-            align-items: center;
+            position: relative; border-radius: var(--radius-sm); overflow: hidden;
+            background: rgba(0,0,0,0.35); aspect-ratio: 16/10;
         }
-
-        .slider-wrapper {
-            display: flex;
-            transition: transform 0.5s ease;
-            width: 100%;
+        .slider-inner { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .slider-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; height: 100%; }
+        .slider-slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .slider-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1); color: white;
+            width: 36px; height: 36px; border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1em; transition: all 0.2s; z-index: 5; font-family: inherit;
         }
-
-        .slider-slide {
-            min-width: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-        }
-
-        .slider-slide img {
-            max-width: 100%;
-            max-height: 400px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        .slider-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            color: #333;
-            font-size: 2em;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 10;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .slider-button:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .slider-button.prev {
-            left: 10px;
-        }
-
-        .slider-button.next {
-            right: 10px;
-        }
-
-        .slider-dots {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
+        .slider-arrow:hover { background: rgba(0,0,0,0.85); }
+        .slider-prev { left: 8px; } .slider-next { right: 8px; }
+        .slider-dots { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
         .slider-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ddd;Edit
-            cursor: pointer;
-            transition: all 0.3s ease;
+            width: 7px; height: 7px; border-radius: 50%; background: var(--border);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .slider-dot.active { background: var(--accent-light); width: 22px; border-radius: 4px; }
+
+        @keyframes fadeUp {
+            from{opacity:0;transform:translateY(18px)}
+            to{opacity:1;transform:translateY(0)}
         }
 
-        .slider-dot.active {
-            background: #667eea;
-            width: 30px;
-            border-radius: 5px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .modal-actions .btn {
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-        }
-
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .modal-content {
-                max-height: 95vh;
-            }
-
-            .modal-header {
-                padding: 20px;
-            }
-
-            .modal-header h2 {
-                font-size: 1.5em;
-            }
-
-            .modal-body {
-                padding: 20px;
-            }
-
-            .slider-button {
-                width: 40px;
-                height: 40px;
-                font-size: 1.5em;
-            }
-
-            .modal-actions .btn {
-                min-width: 100%;
-            }
+            .nav { padding: 0 18px; }
+            .nav-links a:not(.nav-cta) { display: none; }
+            .hero { padding: 80px 20px 60px; }
+            .stats-wrap, .section { padding-left: 18px; padding-right: 18px; }
+            .section-title { font-size: 1.6em; }
+            .modal-body { padding: 20px; }
+            .modal-header { padding: 20px; }
         }
     </style>
 </head>
 <body>
-    <video id="background-video" autoplay muted loop playsinline>
-        <source src="klee.mp4" type="video/mp4">
-    </video>
-    <div class="video-overlay"></div>
-    
-    <div class="container">
-        <h1>
-            <img src="capy.png" style="-webkit-transform:scaleX(-1);transform:scaleX(-1);" alt="Launcher.moe">
-            Launcher.moe
-        </h1>
-        <p class="subtitle">Linux launchers for your favorite anime games</p>
 
-        <div class="launchers-grid" id="launchersGrid"></div>
+<div class="bg-glow"></div>
 
-        <div class="team-section">
-            <h2>Team</h2>
-            <div class="team-grid" id="teamGrid"></div>
+<nav class="nav">
+    <div class="nav-inner">
+        <a class="nav-logo" href="index.html">
+            <img src="capy.png" alt=""> Launcher.moe
+        </a>
+        <div class="nav-links">
+            <a href="dwproton.html">DWProton</a>
+            <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
+            <a href="https://fluxer.gg/tHir9aSq" target="_blank" rel="noopener">Fluxer</a>
+            <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" class="nav-cta">Donate</a>
         </div>
-
-        <script src='https://opencollective.com/dawn-winery/banner.js?style={"h2":{"fontFamily":"-apple-system, BlinkMacSystemFont, \u0027Segoe UI\u0027, Roboto, \u0027Helvetica Neue\u0027, Arial, sans-serif","color":"rgb(51, 51, 51)","fontSize":"2em","fontWeight":"bold","marginBottom":"20px","textAlign":"center"},"a":{"color":"rgb(102, 126, 234)","textDecoration":"none"},"h3":{"fontFamily":"-apple-system, BlinkMacSystemFont, \u0027Segoe UI\u0027, Roboto, \u0027Helvetica Neue\u0027, Arial, sans-serif","color":"rgb(102, 102, 102)","fontWeight":"normal"}}'></script>
-        
-        <footer>
-            <p>All launchers are maintained by <a href="https://github.com/an-anime-team" target="_blank">An Anime Team</a></p>
-            <p>Join the <a href="https://discord.gg/ck37X6UWBp" target="_blank">Discord</a> or <a href="https://fluxer.gg/tHir9aSq" target="_blank">Fluxer</a> for support</p>
-        </footer>
     </div>
+</nav>
 
-    <script>
-        const launchers = [
-            {
-                name: "An Anime Game Launcher",
-                shortDescription: "An Anime Game launcher for Linux with telemetry disabling",
-                fullDescription: "A feature-rich launcher for anime-themed games on Linux, providing automatic game updates, Wine/Proton management, and telemetry disabling for privacy. Supports both modern and classic UI themes with extensive customization options.",
-                icon: "https://raw.githubusercontent.com/an-anime-team/an-anime-game-launcher/main/assets/images/icon.png",
-                repo: "https://github.com/an-anime-team/an-anime-game-launcher",
-                repoShort: "an-anime-game-launcher",
-                installGuide: "https://github.com/an-anime-team/an-anime-game-launcher#%EF%B8%8F-download",
-                features: [
-                    "Automatic game updates",
-                    "Telemetry disabling for enhanced privacy",
-                    "Modern and Classic UI themes",
-                    "Wine/Proton version management",
-                    "DXVK/VKD3D configuration",
-                    "Game settings presets"
-                ],
-                screenshots: [
-                    "main-modern.png",
-                    "settings-modern.png",
-                    "main-classic.png",
-                    "settings-classic.png"
-                ]
-            },
-            {
-                name: "Honkers Launcher",
-                shortDescription: "Honkers launcher for Linux with automatic patching and telemetry disabling",
-                fullDescription: "A dedicated launcher designed for Honkers game on Linux, featuring automatic patch management, telemetry blocking, and seamless Wine/Proton integration. Offers both modern and classic interface styles.",
-                icon: "https://raw.githubusercontent.com/an-anime-team/honkers-launcher/main/assets/images/icon.png",
-                repo: "https://github.com/an-anime-team/honkers-launcher",
-                repoShort: "honkers-launcher",
-                installGuide: "https://github.com/an-anime-team/honkers-launcher#%EF%B8%8F-download",
-                features: [
-                    "Automatic game patching",
-                    "Privacy-focused telemetry blocking",
-                    "Multiple UI theme options",
-                    "Wine/Proton compatibility layer",
-                    "FPS unlock support",
-                    "Custom game settings"
-                ],
-                screenshots: [
-                    "main-modern.png",
-                    "settings-modern.png",
-                    "main-classic.png",
-                    "settings-classic.png"
-                ]
-            },
-            {
-                name: "The Honkers Railway Launcher",
-                shortDescription: "The Honkers Railway launcher for Linux with automatic patching and telemetry disabling",
-                fullDescription: "A specialized launcher for The Honkers Railway game on Linux. Features comprehensive patch management, privacy protection through telemetry disabling, and flexible Wine/Proton configuration with both modern and classic UI options.",
-                icon: "https://raw.githubusercontent.com/an-anime-team/the-honkers-railway-launcher/main/assets/images/icon.png",
-                repo: "https://github.com/an-anime-team/the-honkers-railway-launcher",
-                repoShort: "the-honkers-railway-launcher",
-                installGuide: "https://github.com/an-anime-team/the-honkers-railway-launcher#%EF%B8%8F-download",
-                features: [
-                    "Automatic game patching",
-                    "Privacy-focused telemetry blocking",
-                    "Modern and Classic themes",
-                    "Wine/Proton management",
-                    "Game performance optimization",
-                    "Easy configuration interface"
-                ],
-                screenshots: [
-                    "main-modern.png",
-                    "settings-modern.png",
-                    "main-classic.png",
-                    "settings-classic.png"
-                ]
-            },
-            {
-                name: "Sleepy Launcher",
-                shortDescription: "Sleepy game launcher for Linux with telemetry disabling",
-                fullDescription: "A streamlined launcher for sleepy-themed games on Linux, providing essential features like telemetry disabling and Wine/Proton integration. Designed for a comfortable gaming experience with customizable UI themes.",
-                icon: "https://raw.githubusercontent.com/an-anime-team/sleepy-launcher/main/assets/images/icon.png",
-                repo: "https://github.com/an-anime-team/sleepy-launcher",
-                repoShort: "sleepy-launcher",
-                installGuide: "https://github.com/an-anime-team/sleepy-launcher#%EF%B8%8F-download",
-                features: [
-                    "Privacy-focused telemetry blocking",
-                    "Wine/Proton support",
-                    "User-friendly interface",
-                    "Modern and Classic UI options",
-                    "Lightweight and fast",
-                    "Customizable settings"
-                ],
-                screenshots: [
-                    "main-modern.png",
-                    "settings-modern.png",
-                    "main-classic.png",
-                    "settings-classic.png"
-                ]
-            }
-        ];
+<section class="hero">
+    <div>
+        <div class="hero-badge">🍷 By An Anime Team &amp; Dawn Winery</div>
+        <img src="capy.png" alt="Launcher.moe" class="hero-logo">
+        <h1>Launcher.moe</h1>
+        <p class="hero-sub">Linux launchers for your favorite anime games — beautifully crafted, open source, and privacy-first.</p>
+        <div class="hero-actions">
+            <a href="#launchers" class="btn btn-primary">Browse Launchers</a>
+            <a href="dwproton.html" class="btn btn-secondary">DWProton →</a>
+        </div>
+    </div>
+</section>
 
-        let currentSlideIndex = 0;
-        let currentLauncher = null;
+<div class="stats-wrap">
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Total Flathub Installs</span></div>
+        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Installs Last 30 Days</span></div>
+        <div class="stat-card"><span class="stat-icon">💶</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">OC Balance</span></div>
+        <div class="stat-card"><span class="stat-icon">❤️</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Backers</span></div>
+    </div>
+</div>
 
-        function createLauncherCard(launcher, index) {
-            const card = document.createElement('div');
-            card.className = 'launcher-card fade-in';
-            card.style.animationDelay = `${index * 0.1}s`;
+<hr class="section-divider">
 
-            card.innerHTML = `
-                <div class="launcher-image">
-                    <img src="${launcher.icon}" alt="${launcher.name} icon" onerror="this.style.display='none'">
+<section class="section" id="launchers">
+    <div class="section-head">
+        <h2 class="section-title">Our <span>Launchers</span></h2>
+        <p class="section-sub">Click any card to see screenshots, features, and download links.</p>
+    </div>
+    <div class="launchers-grid" id="launchersGrid"></div>
+</section>
+
+<hr class="section-divider">
+
+<section class="section" id="team">
+    <div class="section-head">
+        <h2 class="section-title">The <span>Team</span></h2>
+        <p class="section-sub">The people behind An Anime Team.</p>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+</section>
+
+<hr class="section-divider">
+
+<section class="section" id="support">
+    <div class="section-head">
+        <h2 class="section-title">Our <span>Supporters</span></h2>
+        <p class="section-sub">Keeping our servers running and development going.</p>
+    </div>
+    <div class="supporters-content">
+        <div class="oc-stats-row">
+            <div class="oc-stat-card"><span class="oc-stat-val" id="ocBalance">—</span><span class="oc-stat-lbl">Current Balance</span></div>
+            <div class="oc-stat-card"><span class="oc-stat-val" id="ocBudget">—</span><span class="oc-stat-lbl">Est. Annual Budget</span></div>
+            <div class="oc-stat-card"><span class="oc-stat-val" id="ocBackers">—</span><span class="oc-stat-lbl">Financial Backers</span></div>
+        </div>
+        <p class="backers-label">Financial Contributors</p>
+        <div class="backers-list" id="backersList"></div>
+        <div class="donate-box">
+            <h3>Support Our Work 🍷</h3>
+            <p>Help us keep the lights on and continue developing launchers and DWProton.<br>Every contribution goes directly to server costs and development.</p>
+            <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" class="btn btn-primary">Contribute on OpenCollective</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-links">
+            <a href="https://github.com/an-anime-team" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
+            <a href="https://fluxer.gg/tHir9aSq" target="_blank" rel="noopener">Fluxer</a>
+            <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener">OpenCollective</a>
+            <a href="https://dawn.wine/dawn-winery/dwproton" target="_blank" rel="noopener">Forgejo</a>
+            <a href="dwproton.html">DWProton</a>
+        </div>
+        <p class="footer-copy">All launchers are maintained by
+            <a href="https://github.com/an-anime-team" target="_blank" rel="noopener" style="color:var(--text-muted)">An Anime Team</a>
+            &amp; <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" style="color:var(--text-muted)">Dawn Winery</a>
+        </p>
+    </div>
+</footer>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+    <div class="modal-box" id="modalBox">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <img id="modalIcon" src="" alt="">
+                <h2 id="modalTitle"></h2>
+            </div>
+            <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <p class="modal-desc" id="modalDesc"></p>
+                <p class="modal-feat-title">Key Features</p>
+                <ul class="modal-feat-list" id="modalFeats"></ul>
+                <div class="modal-actions">
+                    <a id="modalInstall" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Install Guide</a>
+                    <a id="modalGithub" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">GitHub</a>
+                    <a id="modalFlathub" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Flathub</a>
                 </div>
-                <div class="launcher-content">
-                    <div class="launcher-title">${launcher.name}</div>
-                    <div class="launcher-description">${launcher.shortDescription}</div>
+            </div>
+            <div>
+                <p class="slider-title">Screenshots</p>
+                <div class="slider">
+                    <div class="slider-inner" id="sliderInner"></div>
+                    <button class="slider-arrow slider-prev" id="sliderPrev" aria-label="Previous">‹</button>
+                    <button class="slider-arrow slider-next" id="sliderNext" aria-label="Next">›</button>
                 </div>
-            `;
+                <div class="slider-dots" id="sliderDots"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            card.addEventListener('click', (e) => {
-                // Don't open modal if clicking on a link
-                if (e.target.tagName === 'A' || e.target.closest('a')) {
-                    return;
-                }
-                openModal(launcher);
-            });
+<script>
+const LAUNCHERS = [
+    {
+        name: "An Anime Game Launcher",
+        shortDesc: "Launcher for the popular open-world anime RPG on Linux with automatic updates and telemetry disabling.",
+        fullDesc: "A feature-rich launcher for the popular open-world anime RPG on Linux, providing automatic game updates, Wine/Proton management, and telemetry disabling for enhanced privacy. Supports both Modern and Classic UI themes with extensive customization options.",
+        icon: "https://raw.githubusercontent.com/an-anime-team/an-anime-game-launcher/main/assets/images/icon.png",
+        repo: "https://github.com/an-anime-team/an-anime-game-launcher",
+        repoShort: "an-anime-game-launcher",
+        installGuide: "https://github.com/an-anime-team/an-anime-game-launcher#%EF%B8%8F-download",
+        flathubId: "moe.launcher.an-anime-game-launcher",
+        features: ["Automatic game updates","Telemetry disabling for enhanced privacy","Modern and Classic UI themes","Wine/Proton version management","DXVK/VKD3D configuration","Game settings presets"],
+        screenshots: ["main-modern.png","settings-modern.png","main-classic.png","settings-classic.png"]
+    },
+    {
+        name: "Honkers Launcher",
+        shortDesc: "Launcher for the popular anime RPG on Linux with automatic patching and telemetry disabling.",
+        fullDesc: "A dedicated launcher for the popular anime RPG on Linux, featuring automatic patch management, telemetry blocking, and seamless Wine/Proton integration. Offers both Modern and Classic interface styles.",
+        icon: "https://raw.githubusercontent.com/an-anime-team/honkers-launcher/main/assets/images/icon.png",
+        repo: "https://github.com/an-anime-team/honkers-launcher",
+        repoShort: "honkers-launcher",
+        installGuide: "https://github.com/an-anime-team/honkers-launcher#%EF%B8%8F-download",
+        flathubId: "moe.launcher.honkers-launcher",
+        features: ["Automatic game patching","Privacy-focused telemetry blocking","Multiple UI theme options","Wine/Proton compatibility layer","FPS unlock support","Custom game settings"],
+        screenshots: ["main-modern.png","settings-modern.png","main-classic.png","settings-classic.png"]
+    },
+    {
+        name: "The Honkers Railway Launcher",
+        shortDesc: "Launcher for the popular space-fantasy anime RPG on Linux with automatic patching and telemetry disabling.",
+        fullDesc: "A specialized launcher for the popular space-fantasy anime RPG on Linux. Features comprehensive patch management, privacy protection through telemetry disabling, and flexible Wine/Proton configuration with Modern and Classic UI options.",
+        icon: "https://raw.githubusercontent.com/an-anime-team/the-honkers-railway-launcher/main/assets/images/icon.png",
+        repo: "https://github.com/an-anime-team/the-honkers-railway-launcher",
+        repoShort: "the-honkers-railway-launcher",
+        installGuide: "https://github.com/an-anime-team/the-honkers-railway-launcher#%EF%B8%8F-download",
+        flathubId: "moe.launcher.the-honkers-railway-launcher",
+        features: ["Automatic game patching","Privacy-focused telemetry blocking","Modern and Classic themes","Wine/Proton management","Game performance optimization","Easy configuration interface"],
+        screenshots: ["main-modern.png","settings-modern.png","main-classic.png","settings-classic.png"]
+    },
+    {
+        name: "Sleepy Launcher",
+        shortDesc: "Launcher for the popular anime action RPG on Linux with telemetry disabling and Wine/Proton support.",
+        fullDesc: "A streamlined launcher for the popular anime action RPG on Linux, providing essential features like telemetry disabling and Wine/Proton integration. Designed for a comfortable gaming experience with customizable UI themes.",
+        icon: "https://raw.githubusercontent.com/an-anime-team/sleepy-launcher/main/assets/images/icon.png",
+        repo: "https://github.com/an-anime-team/sleepy-launcher",
+        repoShort: "sleepy-launcher",
+        installGuide: "https://github.com/an-anime-team/sleepy-launcher#%EF%B8%8F-download",
+        flathubId: "moe.launcher.sleepy-launcher",
+        features: ["Privacy-focused telemetry blocking","Wine/Proton support","User-friendly interface","Modern and Classic UI options","Lightweight and fast","Customizable settings"],
+        screenshots: ["main-modern.png","settings-modern.png","main-classic.png","settings-classic.png"]
+    }
+];
 
-            return card;
-        }
+let currentLauncher = null;
+let currentSlide = 0;
+const flathubStats = {};
 
-        function createModal() {
-            const modal = document.createElement('div');
-            modal.id = 'launcherModal';
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 id="modalTitle"></h2>
-                        <button class="modal-close" onclick="closeModal()">&times;</button>
+function fmtNum(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+    if (n >= 1000) return (n/1000).toFixed(1)+'k';
+    return String(n);
+}
+
+function escHTML(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+    return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function getRecentInstalls(data, days=30) {
+    if (!data?.installs_per_day) return 0;
+    const entries = Object.entries(data.installs_per_day).sort((a,b)=>b[0].localeCompare(a[0]));
+    return entries.slice(0,days).reduce((s,[,v])=>s+v,0);
+}
+
+async function loadFlathubStats() {
+    await Promise.all(LAUNCHERS.map(async l => {
+        try {
+            const r = await fetch('https://flathub.org/api/v2/stats/'+l.flathubId);
+            if (r.ok) flathubStats[l.flathubId] = await r.json();
+        } catch {}
+    }));
+}
+
+async function loadOCData() {
+    try {
+        const [sr, mr] = await Promise.all([
+            fetch('https://opencollective.com/dawn-winery.json'),
+            fetch('https://opencollective.com/dawn-winery/members/all.json')
+        ]);
+        return {
+            summary: sr.ok ? await sr.json() : null,
+            members: mr.ok ? await mr.json() : []
+        };
+    } catch { return {summary:null, members:[]}; }
+}
+
+function renderStats(ocSummary) {
+    let totalInstalls=0, totalRecent=0;
+    for (const l of LAUNCHERS) {
+        const d = flathubStats[l.flathubId];
+        if (d) { totalInstalls += d.installs_total||0; totalRecent += getRecentInstalls(d); }
+    }
+    const balance = ocSummary ? '€'+(ocSummary.balance/100).toFixed(2) : '—';
+    const backers = ocSummary ? String(ocSummary.backersCount) : '—';
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value">${totalInstalls>0?fmtNum(totalInstalls):'—'}</span><span class="stat-label">Total Flathub Installs</span></div>
+        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value">${totalRecent>0?fmtNum(totalRecent):'—'}</span><span class="stat-label">Installs Last 30 Days</span></div>
+        <div class="stat-card"><span class="stat-icon">💶</span><span class="stat-value">${balance}</span><span class="stat-label">OC Balance</span></div>
+        <div class="stat-card"><span class="stat-icon">❤️</span><span class="stat-value">${backers}</span><span class="stat-label">Backers</span></div>
+    `;
+}
+
+function renderOCSection(summary, members) {
+    if (summary) {
+        document.getElementById('ocBalance').textContent = '€'+(summary.balance/100).toFixed(2);
+        document.getElementById('ocBudget').textContent = '€'+(summary.yearlyIncome/100).toFixed(0)+'/yr';
+        document.getElementById('ocBackers').textContent = summary.backersCount;
+    }
+    const backersList = document.getElementById('backersList');
+    const backers = (members||[]).filter(m=>m.role==='BACKER' && m.totalAmountDonated>0);
+    if (!backers.length) {
+        backersList.innerHTML = '<p style="color:var(--text-subtle);font-size:0.88em">No public backers yet — be the first!</p>';
+        return;
+    }
+    backersList.innerHTML = backers.map(b => {
+        const imgEl = b.image
+            ? `<img src="${escAttr(b.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+            : `<span style="width:22px;height:22px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;flex-shrink:0">${escHTML((b.name||'?')[0])}</span>`;
+        return `<a class="backer-chip" href="${escAttr(b.profile)}" target="_blank" rel="noopener noreferrer">${imgEl}<span>${escHTML(b.name||'Anonymous')}</span></a>`;
+    }).join('');
+}
+
+function renderLaunchers() {
+    document.getElementById('launchersGrid').innerHTML = LAUNCHERS.map((l,i) => {
+        const stats = flathubStats[l.flathubId];
+        const total = stats ? fmtNum(stats.installs_total) : null;
+        const monthly = stats ? fmtNum(getRecentInstalls(stats)) : null;
+        return `
+        <div class="launcher-card" data-idx="${i}" style="animation:fadeUp 0.5s ease ${i*0.07}s both">
+            <div class="launcher-card-header">
+                <img class="launcher-icon" src="${escAttr(l.icon)}" alt="${escHTML(l.name)}" loading="lazy" onerror="this.style.opacity=0">
+                <div class="launcher-card-name">${escHTML(l.name)}</div>
+            </div>
+            <div class="launcher-card-body">
+                <p class="launcher-card-desc">${escHTML(l.shortDesc)}</p>
+                <div class="launcher-card-meta">
+                    <div class="launcher-installs">
+                        ${total
+                            ? `<span>📦</span><strong>${escHTML(total)}</strong>&nbsp;installs${monthly?`&nbsp;·&nbsp;<strong>${escHTML(monthly)}</strong>/mo`:''}`
+                            : `<span style="color:var(--text-subtle);font-size:0.9em">Loading stats…</span>`}
                     </div>
-                    <div class="modal-body">
-                        <div class="modal-left">
-                            <div class="modal-description" id="modalDescription"></div>
-                            
-                            <div class="modal-info">
-                                <h3>Key Features</h3>
-                                <ul id="modalFeatures"></ul>
-                            </div>
-
-                            <div class="modal-actions">
-                                <a id="modalInstallBtn" href="#" target="_blank" class="btn btn-primary">📖 Install Guide</a>
-                                <a id="modalGithubBtn" href="#" target="_blank" class="btn btn-secondary">GitHub Repository</a>
-                            </div>
-                        </div>
-
-                        <div class="modal-right">
-                            <div class="slider-container">
-                                <h3>Screenshots</h3>
-                                <div class="slider">
-                                    <div class="slider-wrapper" id="sliderWrapper"></div>
-                                    <button class="slider-button prev" onclick="previousSlide()">‹</button>
-                                    <button class="slider-button next" onclick="nextSlide()">›</button>
-                                </div>
-                                <div class="slider-dots" id="sliderDots"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <button class="launcher-more">Details →</button>
                 </div>
-            `;
-            document.body.appendChild(modal);
+            </div>
+        </div>`;
+    }).join('');
+    document.querySelectorAll('.launcher-card').forEach(c => {
+        c.addEventListener('click', e => { if (e.target.tagName!=='A') openModal(LAUNCHERS[+c.dataset.idx]); });
+    });
+}
 
-            // Close modal when clicking outside
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
+async function renderTeam() {
+    const grid = document.getElementById('teamGrid');
+    try {
+        const r = await fetch('https://api.github.com/orgs/an-anime-team/members');
+        if (!r.ok) throw new Error();
+        const members = await r.json();
+        const details = await Promise.all(members.map(m =>
+            fetch('https://api.github.com/users/'+m.login).then(r=>r.json()).catch(()=>m)
+        ));
+        grid.innerHTML = details.map((m,i)=>{
+            const name = escHTML(m.name||m.login);
+            return `<a class="team-card" href="${escAttr(m.html_url)}" target="_blank" rel="noopener noreferrer" style="animation:fadeUp 0.5s ease ${i*0.04}s both">
+                <div class="team-avatar"><img src="${escAttr(m.avatar_url)}" alt="${name}" loading="lazy"></div>
+                <div class="team-name">${name}</div>
+            </a>`;
+        }).join('');
+    } catch {
+        grid.innerHTML = '<p style="color:var(--text-subtle);grid-column:1/-1;text-align:center">Could not load team members.</p>';
+    }
+}
 
-            // Close modal on escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modal.classList.contains('active')) {
-                    closeModal();
-                }
-            });
-        }
+function openModal(launcher) {
+    currentLauncher = launcher;
+    currentSlide = 0;
+    document.getElementById('modalIcon').src = launcher.icon;
+    document.getElementById('modalIcon').alt = launcher.name;
+    document.getElementById('modalTitle').textContent = launcher.name;
+    document.getElementById('modalDesc').textContent = launcher.fullDesc;
+    document.getElementById('modalFeats').innerHTML = launcher.features.map(f=>`<li>${escHTML(f)}</li>`).join('');
+    document.getElementById('modalInstall').href = launcher.installGuide;
+    document.getElementById('modalGithub').href = launcher.repo;
+    document.getElementById('modalFlathub').href = 'https://flathub.org/en/apps/'+launcher.flathubId;
+    loadSlides(launcher);
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    currentLauncher = null;
+}
+function loadSlides(launcher) {
+    const inner = document.getElementById('sliderInner');
+    const dots = document.getElementById('sliderDots');
+    inner.innerHTML = ''; dots.innerHTML = '';
+    launcher.screenshots.forEach((s,i) => {
+        const slide = document.createElement('div');
+        slide.className = 'slider-slide';
+        const img = document.createElement('img');
+        img.src = 'https://raw.githubusercontent.com/an-anime-team/'+launcher.repoShort+'/main/repository/'+s;
+        img.alt = 'Screenshot '+(i+1);
+        img.loading = 'lazy';
+        slide.appendChild(img);
+        inner.appendChild(slide);
+        const dot = document.createElement('div');
+        dot.className = 'slider-dot'+(i===0?' active':'');
+        dot.addEventListener('click', ()=>goSlide(i));
+        dots.appendChild(dot);
+    });
+    goSlide(0);
+}
+function goSlide(idx) {
+    if (!currentLauncher) return;
+    const len = currentLauncher.screenshots.length;
+    currentSlide = ((idx%len)+len)%len;
+    document.getElementById('sliderInner').style.transform = 'translateX(-'+currentSlide*100+'%)';
+    document.querySelectorAll('.slider-dot').forEach((d,i)=>d.classList.toggle('active',i===currentSlide));
+}
+document.getElementById('sliderPrev').addEventListener('click',()=>goSlide(currentSlide-1));
+document.getElementById('sliderNext').addEventListener('click',()=>goSlide(currentSlide+1));
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-        function openModal(launcher) {
-            currentLauncher = launcher;
-            currentSlideIndex = 0;
+async function init() {
+    const [, ocData] = await Promise.all([loadFlathubStats(), loadOCData()]);
+    renderStats(ocData.summary);
+    renderLaunchers();
+    renderOCSection(ocData.summary, ocData.members);
+    renderTeam();
+}
 
-            const modal = document.getElementById('launcherModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
-            const modalFeatures = document.getElementById('modalFeatures');
-            const modalInstallBtn = document.getElementById('modalInstallBtn');
-            const modalGithubBtn = document.getElementById('modalGithubBtn');
-
-            // Set title with icon
-            modalTitle.innerHTML = `<img src="${launcher.icon}" alt="${launcher.name} icon" onerror="this.style.display='none'">${launcher.name}`;
-            
-            // Set description
-            modalDescription.textContent = launcher.fullDescription;
-
-            // Set features
-            modalFeatures.innerHTML = launcher.features.map(feature => `<li>${feature}</li>`).join('');
-
-            // Set button links
-            modalInstallBtn.href = launcher.installGuide;
-            modalGithubBtn.href = launcher.repo;
-
-            // Load screenshots
-            loadScreenshots(launcher);
-
-            // Show modal
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('launcherModal');
-            
-            // Add closing class to trigger animation
-            modal.classList.add('closing');
-            
-            // Wait for animation to complete before removing modal
-            setTimeout(() => {
-                modal.classList.remove('active');
-                modal.classList.remove('closing');
-                document.body.style.overflow = '';
-                
-                // Reset slider position to first slide
-                currentSlideIndex = 0;
-                currentLauncher = null;
-                const sliderWrapper = document.getElementById('sliderWrapper');
-                if (sliderWrapper) {
-                    sliderWrapper.style.transform = 'translateX(0)';
-                }
-            }, 300); // Match animation duration
-        }
-
-        function loadScreenshots(launcher) {
-            const sliderWrapper = document.getElementById('sliderWrapper');
-            const sliderDots = document.getElementById('sliderDots');
-
-            sliderWrapper.innerHTML = '';
-            sliderDots.innerHTML = '';
-
-            launcher.screenshots.forEach((screenshot, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'slider-slide';
-                const imgUrl = `https://raw.githubusercontent.com/an-anime-team/${launcher.repoShort}/main/repository/${screenshot}`;
-                slide.innerHTML = `<img src="${imgUrl}" alt="Screenshot ${index + 1}" loading="lazy">`;
-                sliderWrapper.appendChild(slide);
-
-                const dot = document.createElement('div');
-                dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
-                dot.addEventListener('click', () => goToSlide(index));
-                sliderDots.appendChild(dot);
-            });
-        }
-
-        function goToSlide(index) {
-            if (!currentLauncher) return;
-
-            const sliderWrapper = document.getElementById('sliderWrapper');
-            const dots = document.querySelectorAll('.slider-dot');
-            
-            currentSlideIndex = index;
-            sliderWrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlideIndex);
-            });
-        }
-
-        function nextSlide() {
-            if (!currentLauncher) return;
-
-            currentSlideIndex = (currentSlideIndex + 1) % currentLauncher.screenshots.length;
-            goToSlide(currentSlideIndex);
-        }
-
-        function previousSlide() {
-            if (!currentLauncher) return;
-
-            currentSlideIndex = (currentSlideIndex - 1 + currentLauncher.screenshots.length) % currentLauncher.screenshots.length;
-            goToSlide(currentSlideIndex);
-        }
-
-        function initializeLaunchers() {
-            const grid = document.getElementById('launchersGrid');
-            launchers.forEach((launcher, index) => {
-                const card = createLauncherCard(launcher, index);
-                grid.appendChild(card);
-            });
-
-            // Create modal
-            createModal();
-
-            // Load team members
-            loadTeamMembers();
-        }
-
-        async function loadTeamMembers() {
-            const teamGrid = document.getElementById('teamGrid');
-            
-            try {
-                // Fetch team members from An Anime Team organization
-                const response = await fetch('https://api.github.com/orgs/an-anime-team/members');
-                const members = await response.json();
-
-                // Fetch detailed info for each member to get their full name
-                const memberDetails = await Promise.all(
-                    members.map(member => 
-                        fetch(`https://api.github.com/users/${member.login}`)
-                            .then(res => res.json())
-                    )
-                );
-
-                memberDetails.forEach((member, index) => {
-                    const memberCard = document.createElement('a');
-                    memberCard.className = 'team-member fade-in';
-                    memberCard.style.animationDelay = `${index * 0.1}s`;
-                    memberCard.href = member.html_url;
-                    memberCard.target = '_blank';
-                    memberCard.rel = 'noopener noreferrer';
-
-                    // Use full name if available, otherwise use login
-                    const displayName = member.name || member.login;
-
-                    memberCard.innerHTML = `
-                        <div class="team-member-avatar">
-                            <img src="${member.avatar_url}" alt="${displayName}">
-                        </div>
-                        <div class="team-member-info">
-                            <div class="team-member-name">${displayName}</div>
-                        </div>
-                    `;
-
-                    teamGrid.appendChild(memberCard);
-                });
-            } catch (error) {
-                console.error('Failed to load team members:', error);
-                // Show a message if API fails
-                teamGrid.innerHTML = '<p style="color: white; text-align: center; grid-column: 1/-1;">Unable to load team members</p>';
-            }
-        }
-
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeLaunchers);
-        } else {
-            initializeLaunchers();
-        }
-    </script>
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+</script>
 </body>
 </html>
