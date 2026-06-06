@@ -257,23 +257,32 @@
         .launcher-more:hover { background: rgba(124,58,237,0.2); }
 
         /* TEAM */
-        .team-grid {
+        .team-row {
             max-width: 1200px; margin: 0 auto;
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 14px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 32px;
         }
-        .team-card {
-            background: var(--surface); border: 1px solid var(--border-subtle);
-            border-radius: var(--radius); overflow: hidden;
-            text-decoration: none; transition: all 0.3s; display: block;
+        .team-member {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            text-decoration: none; transition: all 0.25s; width: 76px;
         }
-        .team-card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
-        .team-avatar { width: 100%; aspect-ratio: 1; overflow: hidden; background: var(--bg-2); }
-        .team-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .team-name {
-            padding: 10px 12px; font-size: 0.82em; font-weight: 600;
-            color: var(--text); text-align: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .team-member:hover { transform: translateY(-5px); }
+        .team-avatar-circle {
+            width: 72px; height: 72px; border-radius: 50%;
+            overflow: hidden; background: var(--bg-2);
+            border: 2px solid var(--border-subtle);
+            transition: all 0.25s; flex-shrink: 0;
         }
+        .team-member:hover .team-avatar-circle {
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(167,139,250,0.25), 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .team-avatar-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .team-member-name {
+            font-size: 0.76em; font-weight: 600; color: var(--text-muted);
+            text-align: center; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; max-width: 76px; transition: color 0.2s;
+        }
+        .team-member:hover .team-member-name { color: var(--text); }
 
         /* SUPPORTERS */
         .supporters-content { max-width: 1200px; margin: 0 auto; }
@@ -453,9 +462,7 @@
 <div class="stats-wrap">
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Total Flathub Installs</span></div>
-        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Installs Last 30 Days</span></div>
-        <div class="stat-card"><span class="stat-icon">💶</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">OC Balance</span></div>
-        <div class="stat-card"><span class="stat-icon">❤️</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Backers</span></div>
+        <div class="stat-card"><span class="stat-icon">🍷</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">DWProton Downloads</span></div>
     </div>
 </div>
 
@@ -476,7 +483,7 @@
         <h2 class="section-title">The <span>Team</span></h2>
         <p class="section-sub">The people behind An Anime Team.</p>
     </div>
-    <div class="team-grid" id="teamGrid"></div>
+    <div class="team-row" id="teamGrid"></div>
 </section>
 
 <hr class="section-divider">
@@ -654,6 +661,22 @@ async function loadLauncherStats() {
     }));
 }
 
+async function loadDWProtonStats() {
+    // Sum download_count of .tar.xz assets across all releases from Forgejo API
+    try {
+        const r = await fetch('https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=50&page=1');
+        if (!r.ok) return 0;
+        const releases = await r.json();
+        let total = 0;
+        for (const rel of releases) {
+            for (const asset of (rel.assets||[])) {
+                if (asset.name && asset.name.endsWith('.tar.xz')) total += asset.download_count||0;
+            }
+        }
+        return total;
+    } catch { return 0; }
+}
+
 async function loadOCData() {
     try {
         const [sr, mr] = await Promise.all([
@@ -667,19 +690,15 @@ async function loadOCData() {
     } catch { return {summary:null, members:[]}; }
 }
 
-function renderStats(ocSummary) {
-    let totalInstalls = 0, totalMonth = 0;
+function renderStats(dwprotonDownloads) {
+    let totalInstalls = 0;
     for (const l of LAUNCHERS) {
         const s = launcherStats[l.flathubId];
-        if (s) { totalInstalls += s.total; totalMonth += s.month; }
+        if (s) totalInstalls += s.total;
     }
-    const balance = ocSummary ? '€'+(ocSummary.balance/100).toFixed(2) : '—';
-    const backers = ocSummary ? String(ocSummary.backersCount) : '—';
     document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value">${totalInstalls>0?fmtNum(totalInstalls):'—'}</span><span class="stat-label">Total Flathub Installs</span></div>
-        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value">${totalMonth>0?fmtNum(totalMonth):'—'}</span><span class="stat-label">Installs This Month</span></div>
-        <div class="stat-card"><span class="stat-icon">💶</span><span class="stat-value">${balance}</span><span class="stat-label">OC Balance</span></div>
-        <div class="stat-card"><span class="stat-icon">❤️</span><span class="stat-value">${backers}</span><span class="stat-label">Backers</span></div>
+        <div class="stat-card"><span class="stat-icon">🍷</span><span class="stat-value">${dwprotonDownloads>0?fmtNum(dwprotonDownloads):'—'}</span><span class="stat-label">DWProton Downloads</span></div>
     `;
 }
 
@@ -756,13 +775,13 @@ async function renderTeam() {
         ));
         grid.innerHTML = details.map((m,i)=>{
             const name = escHTML(m.name||m.login);
-            return `<a class="team-card" href="${escAttr(m.html_url)}" target="_blank" rel="noopener noreferrer" style="animation:fadeUp 0.5s ease ${i*0.04}s both">
-                <div class="team-avatar"><img src="${escAttr(m.avatar_url)}" alt="${name}" loading="lazy"></div>
-                <div class="team-name">${name}</div>
+            return `<a class="team-member" href="${escAttr(m.html_url)}" target="_blank" rel="noopener noreferrer" style="animation:fadeUp 0.45s ease ${i*0.05}s both">
+                <div class="team-avatar-circle"><img src="${escAttr(m.avatar_url)}" alt="${name}" loading="lazy"></div>
+                <span class="team-member-name">${name}</span>
             </a>`;
         }).join('');
     } catch {
-        grid.innerHTML = '<p style="color:var(--text-subtle);grid-column:1/-1;text-align:center">Could not load team members.</p>';
+        grid.innerHTML = '<p style="color:var(--text-subtle);text-align:center;width:100%">Could not load team members.</p>';
     }
 }
 
@@ -820,8 +839,8 @@ document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 async function init() {
-    const [, ocData] = await Promise.all([loadLauncherStats(), loadOCData()]);
-    renderStats(ocData.summary);
+    const [, dwDl, ocData] = await Promise.all([loadLauncherStats(), loadDWProtonStats(), loadOCData()]);
+    renderStats(dwDl);
     renderLaunchers();
     renderOCSection(ocData.summary, ocData.members);
     renderTeam();
