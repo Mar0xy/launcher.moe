@@ -398,38 +398,33 @@
     <div class="section-inner">
         <div class="section-head">
             <h2 class="section-title">Why <span>DWProton</span>?</h2>
-            <p class="section-sub">Purpose-built for Linux anime game players, with upstream excellence.</p>
+            <p class="section-sub">Purpose-built for Linux anime game players with specific patches for the games</p>
         </div>
         <div class="features-grid">
             <div class="feature-card" style="animation:fadeUp 0.5s ease 0s both">
                 <span class="feature-icon">⚡</span>
                 <div class="feature-title">Based on Proton-CachyOS</div>
-                <div class="feature-desc">Includes all latest Proton-CachyOS features, performance patches, and upstream improvements — always kept up to date.</div>
+                <div class="feature-desc">Includes all latest Proton-CachyOS features, performance patches, and upstream improvements</div>
             </div>
             <div class="feature-card" style="animation:fadeUp 0.5s ease 0.07s both">
                 <span class="feature-icon">🎮</span>
                 <div class="feature-title">Anime Game Fixes</div>
-                <div class="feature-desc">Dedicated patches for popular anime games ensuring they work on Linux on or shortly after release — maintained by the Dawn Winery team.</div>
+                <div class="feature-desc">Dedicated patches for popular anime games ensuring they work on Linux on or shortly after release</div>
             </div>
             <div class="feature-card" style="animation:fadeUp 0.5s ease 0.14s both">
                 <span class="feature-icon">🔧</span>
                 <div class="feature-title">Proton-EM Compatibility</div>
-                <div class="feature-desc">Includes additional game compatibility fixes from Proton-EM, broadening support across many titles.</div>
+                <div class="feature-desc">Includes additional game compatibility fixes from Proton-EM, broadening support across many titles</div>
             </div>
             <div class="feature-card" style="animation:fadeUp 0.5s ease 0.21s both">
                 <span class="feature-icon">🎨</span>
                 <div class="feature-title">DXVK-gplasync &amp; LLAsync</div>
-                <div class="feature-desc">Bundled DXVK-gplasync for async shader compilation and llasync for low-latency frame pacing — great for single-player games.</div>
+                <div class="feature-desc">Bundled DXVK-gplasync for async shader compilation and llasync for low-latency frame pacing</div>
             </div>
             <div class="feature-card" style="animation:fadeUp 0.5s ease 0.28s both">
                 <span class="feature-icon">🔊</span>
                 <div class="feature-title">WineAlsa Support</div>
-                <div class="feature-desc">Optional WineAlsa backend to fix audio crackling issues that some users experience with PipeWire/PulseAudio.</div>
-            </div>
-            <div class="feature-card" style="animation:fadeUp 0.5s ease 0.35s both">
-                <span class="feature-icon">📦</span>
-                <div class="feature-title">ProtonPlus Ready</div>
-                <div class="feature-desc">Available directly in ProtonPlus — the easiest way to install and manage Proton builds on Linux.</div>
+                <div class="feature-desc">Optional WineAlsa backend to fix audio crackling issues that some users experience with PipeWire/PulseAudio</div>
             </div>
         </div>
     </div>
@@ -442,7 +437,7 @@
     <div class="section-inner">
         <div class="section-head">
             <h2 class="section-title">Latest <span>Releases</span></h2>
-            <p class="section-sub">Always up to date with the latest Proton-CachyOS base and anime game fixes.</p>
+            <p class="section-sub">Always up to date with the latest Proton-CachyOS base and anime game fixes</p>
         </div>
         <div id="latestRelease">
             <div style="background:var(--surface);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:28px">
@@ -472,7 +467,7 @@
     <div class="section-inner">
         <div class="section-head">
             <h2 class="section-title">Installation <span>Guide</span></h2>
-            <p class="section-sub">Get DWProton running in minutes.</p>
+            <p class="section-sub">Get DWProton running in minutes</p>
         </div>
         <div class="install-tabs">
             <button class="install-tab active" data-tab="protonplus">ProtonPlus (Recommended)</button>
@@ -485,7 +480,7 @@
                     <div class="step-card">
                         <div class="step-title">Install ProtonPlus</div>
                         <div class="step-desc">
-                            Install ProtonPlus from Flathub — it's the easiest Proton manager for Linux.<br>
+                            Install ProtonPlus from Flathub for easy proton installation management.<br>
                             <a href="https://flathub.org/apps/com.vysp3r.ProtonPlus" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px">→ Get ProtonPlus on Flathub</a>
                         </div>
                     </div>
@@ -586,19 +581,19 @@
                     <tr>
                         <td><code>PROTON_DXVK_GPLASYNC</code></td>
                         <td><code>1</code></td>
-                        <td>Enables DXVK-gplasync for async shader compilation. Not recommended for multiplayer games with anti-cheat.</td>
+                        <td>Enables DXVK-gplasync for async shader compilation, not recommended for multiplayer games with anti-cheat.</td>
                         <td><span class="env-source env-source-dw">dwproton</span></td>
                     </tr>
                     <tr>
                         <td><code>PROTON_DXVK_LLASYNC</code></td>
                         <td><code>1</code></td>
-                        <td>Enables both gplasync and lowlatency async functionalities in DXVK. Implies <code>PROTON_DXVK_GPLASYNC=1</code>.</td>
+                        <td>Enables both gplasync and lowlatency async functionalities in DXVK, implies <code>PROTON_DXVK_GPLASYNC=1</code>.</td>
                         <td><span class="env-source env-source-dw">dwproton</span></td>
                     </tr>
                     <tr>
                         <td><code>PROTON_USE_WINEALSA</code></td>
                         <td><code>1</code></td>
-                        <td>Uses WineAlsa audio backend — may fix audio crackling in some games.</td>
+                        <td>Uses WineAlsa audio backend, may fix audio crackling in some games.</td>
                         <td><span class="env-source env-source-dw">dwproton</span></td>
                     </tr>
                     <tr>
@@ -634,23 +629,16 @@
                 </tbody>
             </table>
         </div>
-        <div class="info-box" style="margin-top:20px">
-            <strong>More options:</strong> DWProton also inherits all standard Proton and Proton-CachyOS environment variables.
-            See <a href="https://dawn.wine/dawn-winery/dwproton/src/branch/main/docs/DXVK.md" target="_blank" rel="noopener" style="color:var(--accent-light)">DXVK.md</a> for detailed DXVK configuration options.
-        </div>
     </div>
 </section>
 
 <footer class="footer">
     <div class="footer-inner">
         <div class="footer-links">
-            <a href="index.html">Launchers</a>
-            <a href="https://dawn.wine/dawn-winery/dwproton" target="_blank" rel="noopener">Forgejo</a>
-            <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener">Releases</a>
             <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
             <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener">Donate</a>
         </div>
-        <p class="footer-copy">DWProton is maintained by <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" style="color:var(--text-muted)">Dawn Winery</a>. Built on <a href="https://github.com/CachyOS/proton-cachyos" target="_blank" rel="noopener" style="color:var(--text-muted)">Proton-CachyOS</a>.</p>
+        <p class="footer-copy">DWProton is maintained by <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" style="color:var(--text-muted)">An Anime Team</a>. Based on <a href="https://github.com/CachyOS/proton-cachyos" target="_blank" rel="noopener" style="color:var(--text-muted)">Proton-CachyOS</a>.</p>
     </div>
 </footer>
 
