@@ -433,7 +433,6 @@
         <div class="nav-links">
             <a href="dwproton.html">DWProton</a>
             <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
-            <a href="https://fluxer.gg/tHir9aSq" target="_blank" rel="noopener">Fluxer</a>
             <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" class="nav-cta">Donate</a>
         </div>
     </div>
@@ -441,7 +440,6 @@
 
 <section class="hero">
     <div>
-        <div class="hero-badge">🍷 By An Anime Team &amp; Dawn Winery</div>
         <img src="capy.png" alt="Launcher.moe" class="hero-logo">
         <h1>Launcher.moe</h1>
         <p class="hero-sub">Linux launchers for your favorite anime games — beautifully crafted, open source, and privacy-first.</p>
@@ -509,14 +507,12 @@
         <div class="footer-links">
             <a href="https://github.com/an-anime-team" target="_blank" rel="noopener">GitHub</a>
             <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
-            <a href="https://fluxer.gg/tHir9aSq" target="_blank" rel="noopener">Fluxer</a>
             <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener">OpenCollective</a>
             <a href="https://dawn.wine/dawn-winery/dwproton" target="_blank" rel="noopener">Forgejo</a>
             <a href="dwproton.html">DWProton</a>
         </div>
         <p class="footer-copy">All launchers are maintained by
             <a href="https://github.com/an-anime-team" target="_blank" rel="noopener" style="color:var(--text-muted)">An Anime Team</a>
-            &amp; <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" style="color:var(--text-muted)">Dawn Winery</a>
         </p>
     </div>
 </footer>
@@ -609,12 +605,21 @@ const LAUNCHERS = [
 
 let currentLauncher = null;
 let currentSlide = 0;
-const flathubStats = {};
+const launcherStats = {}; // {appId: {total: number, month: number}}
 
 function fmtNum(n) {
     if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
     if (n >= 1000) return (n/1000).toFixed(1)+'k';
     return String(n);
+}
+
+// Parse shields.io message strings like "30.6k", "1.2M", "512"
+function parseShieldsNum(msg) {
+    if (!msg || msg === 'N/A' || msg === 'unknown') return 0;
+    const s = String(msg).replace(/,/g, '').trim().toLowerCase();
+    if (s.endsWith('m')) return Math.round(parseFloat(s) * 1000000);
+    if (s.endsWith('k')) return Math.round(parseFloat(s) * 1000);
+    return parseInt(s) || 0;
 }
 
 function escHTML(s) {
@@ -624,17 +629,27 @@ function escAttr(s) {
     return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function getRecentInstalls(data, days=30) {
-    if (!data?.installs_per_day) return 0;
-    const entries = Object.entries(data.installs_per_day).sort((a,b)=>b[0].localeCompare(a[0]));
-    return entries.slice(0,days).reduce((s,[,v])=>s+v,0);
-}
-
-async function loadFlathubStats() {
+// Shields.io provides CORS-friendly JSON badges sourced from Flathub — no proxy needed.
+// Endpoints: https://img.shields.io/flathub/downloads/{appid}.json
+//            https://img.shields.io/flathub/downloads/month/{appid}.json
+// Response:  { message: "30.6k", label: "downloads", ... }
+async function loadLauncherStats() {
     await Promise.all(LAUNCHERS.map(async l => {
         try {
-            const r = await fetch('https://flathub.org/api/v2/stats/'+l.flathubId);
-            if (r.ok) flathubStats[l.flathubId] = await r.json();
+            const [tr, mr] = await Promise.all([
+                fetch(`https://img.shields.io/flathub/downloads/${l.flathubId}.json`),
+                fetch(`https://img.shields.io/flathub/downloads/month/${l.flathubId}.json`)
+            ]);
+            const [td, md] = await Promise.all([
+                tr.ok ? tr.json() : null,
+                mr.ok ? mr.json() : null
+            ]);
+            if (td && !td.isError) {
+                launcherStats[l.flathubId] = {
+                    total: parseShieldsNum(td.message),
+                    month: (md && !md.isError) ? parseShieldsNum(md.message) : 0
+                };
+            }
         } catch {}
     }));
 }
@@ -653,16 +668,16 @@ async function loadOCData() {
 }
 
 function renderStats(ocSummary) {
-    let totalInstalls=0, totalRecent=0;
+    let totalInstalls = 0, totalMonth = 0;
     for (const l of LAUNCHERS) {
-        const d = flathubStats[l.flathubId];
-        if (d) { totalInstalls += d.installs_total||0; totalRecent += getRecentInstalls(d); }
+        const s = launcherStats[l.flathubId];
+        if (s) { totalInstalls += s.total; totalMonth += s.month; }
     }
     const balance = ocSummary ? '€'+(ocSummary.balance/100).toFixed(2) : '—';
     const backers = ocSummary ? String(ocSummary.backersCount) : '—';
     document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value">${totalInstalls>0?fmtNum(totalInstalls):'—'}</span><span class="stat-label">Total Flathub Installs</span></div>
-        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value">${totalRecent>0?fmtNum(totalRecent):'—'}</span><span class="stat-label">Installs Last 30 Days</span></div>
+        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value">${totalMonth>0?fmtNum(totalMonth):'—'}</span><span class="stat-label">Installs This Month</span></div>
         <div class="stat-card"><span class="stat-icon">💶</span><span class="stat-value">${balance}</span><span class="stat-label">OC Balance</span></div>
         <div class="stat-card"><span class="stat-icon">❤️</span><span class="stat-value">${backers}</span><span class="stat-label">Backers</span></div>
     `;
@@ -675,24 +690,37 @@ function renderOCSection(summary, members) {
         document.getElementById('ocBackers').textContent = summary.backersCount;
     }
     const backersList = document.getElementById('backersList');
-    const backers = (members||[]).filter(m=>m.role==='BACKER' && m.totalAmountDonated>0);
+
+    // Deduplicate by profile URL; sum donations for same person; collapse all guests into one
+    const seen = new Map();
+    for (const m of (members||[])) {
+        if (m.role !== 'BACKER' || m.totalAmountDonated <= 0) continue;
+        const key = (!m.name || m.name === 'Guest') ? '__guest__' : m.profile;
+        if (seen.has(key)) {
+            seen.get(key).totalAmountDonated += m.totalAmountDonated;
+        } else {
+            seen.set(key, { ...m });
+        }
+    }
+    const backers = [...seen.values()].sort((a,b) => b.totalAmountDonated - a.totalAmountDonated);
+
     if (!backers.length) {
         backersList.innerHTML = '<p style="color:var(--text-subtle);font-size:0.88em">No public backers yet — be the first!</p>';
         return;
     }
     backersList.innerHTML = backers.map(b => {
+        const name = (!b.name || b.name === 'Guest') ? 'Anonymous' : b.name;
+        const href = b.profile && b.profile !== '__guest__' ? b.profile : 'https://opencollective.com/dawn-winery';
         const imgEl = b.image
             ? `<img src="${escAttr(b.image)}" alt="" loading="lazy" onerror="this.style.display='none'">`
-            : `<span style="width:22px;height:22px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;flex-shrink:0">${escHTML((b.name||'?')[0])}</span>`;
-        return `<a class="backer-chip" href="${escAttr(b.profile)}" target="_blank" rel="noopener noreferrer">${imgEl}<span>${escHTML(b.name||'Anonymous')}</span></a>`;
+            : `<span style="width:22px;height:22px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;flex-shrink:0">${escHTML(name[0])}</span>`;
+        return `<a class="backer-chip" href="${escAttr(href)}" target="_blank" rel="noopener noreferrer">${imgEl}<span>${escHTML(name)}</span></a>`;
     }).join('');
 }
 
 function renderLaunchers() {
     document.getElementById('launchersGrid').innerHTML = LAUNCHERS.map((l,i) => {
-        const stats = flathubStats[l.flathubId];
-        const total = stats ? fmtNum(stats.installs_total) : null;
-        const monthly = stats ? fmtNum(getRecentInstalls(stats)) : null;
+        const s = launcherStats[l.flathubId];
         return `
         <div class="launcher-card" data-idx="${i}" style="animation:fadeUp 0.5s ease ${i*0.07}s both">
             <div class="launcher-card-header">
@@ -703,8 +731,8 @@ function renderLaunchers() {
                 <p class="launcher-card-desc">${escHTML(l.shortDesc)}</p>
                 <div class="launcher-card-meta">
                     <div class="launcher-installs">
-                        ${total
-                            ? `<span>📦</span><strong>${escHTML(total)}</strong>&nbsp;installs${monthly?`&nbsp;·&nbsp;<strong>${escHTML(monthly)}</strong>/mo`:''}`
+                        ${s
+                            ? `<span>📦</span><strong>${fmtNum(s.total)}</strong>&nbsp;installs${s.month?`&nbsp;·&nbsp;<strong>${fmtNum(s.month)}</strong>/mo`:''}`
                             : `<span style="color:var(--text-subtle);font-size:0.9em">Loading stats…</span>`}
                     </div>
                     <button class="launcher-more">Details →</button>
@@ -792,7 +820,7 @@ document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 async function init() {
-    const [, ocData] = await Promise.all([loadFlathubStats(), loadOCData()]);
+    const [, ocData] = await Promise.all([loadLauncherStats(), loadOCData()]);
     renderStats(ocData.summary);
     renderLaunchers();
     renderOCSection(ocData.summary, ocData.members);
