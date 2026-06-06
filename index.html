@@ -246,8 +246,19 @@
         .launcher-card-body { padding: 18px 22px 20px; flex: 1; display: flex; flex-direction: column; }
         .launcher-card-desc { font-size: 0.88em; color: var(--text-muted); line-height: 1.65; flex: 1; margin-bottom: 16px; }
         .launcher-card-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-        .launcher-installs { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-subtle); }
-        .launcher-installs strong { color: var(--accent-light); font-weight: 700; }
+        .launcher-installs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .install-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 100px; padding: 3px 10px;
+            font-size: 0.78em; font-weight: 700; color: var(--accent-light);
+        }
+        .install-chip-month {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px; padding: 3px 10px;
+            font-size: 0.78em; font-weight: 600; color: var(--text-subtle);
+        }
         .launcher-more {
             font-size: 0.8em; color: var(--accent-light); font-weight: 600;
             background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
@@ -750,8 +761,8 @@ function renderLaunchers() {
                 <div class="launcher-card-meta">
                     <div class="launcher-installs">
                         ${s
-                            ? `<span>📦</span><strong>${fmtNum(s.total)}</strong>&nbsp;installs${s.month?`&nbsp;·&nbsp;<strong>${fmtNum(s.month)}</strong>/mo`:''}`
-                            : `<span style="color:var(--text-subtle);font-size:0.9em">Loading stats…</span>`}
+                            ? `<span class="install-chip">📦 ${fmtNum(s.total)}</span>${s.month ? `<span class="install-chip-month">📈 ${fmtNum(s.month)}/mo</span>` : ''}`
+                            : `<span style="color:var(--text-subtle);font-size:0.85em">Loading…</span>`}
                     </div>
                     <button class="launcher-more">Details →</button>
                 </div>
