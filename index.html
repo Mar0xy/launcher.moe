@@ -644,9 +644,10 @@ function escAttr(s) {
 async function loadLauncherStats() {
     await Promise.all(LAUNCHERS.map(async l => {
         try {
+            const monthUrl = `https://img.shields.io/badge/dynamic/json.json?url=https%3A%2F%2Fflathub.org%2Fapi%2Fv2%2Fstats%2F${encodeURIComponent(l.flathubId)}&query=%24.installs_last_month&label=monthly`;
             const [tr, mr] = await Promise.all([
                 fetch(`https://img.shields.io/flathub/downloads/${l.flathubId}.json`),
-                fetch(`https://img.shields.io/flathub/downloads/month/${l.flathubId}.json`)
+                fetch(monthUrl)
             ]);
             const [td, md] = await Promise.all([
                 tr.ok ? tr.json() : null,
