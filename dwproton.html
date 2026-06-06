@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWProton</title>
+    <meta name="description" content="DWProton is An Anime Team's custom Proton fork with fixes for anime games, based on Proton-CachyOS with DXVK-gplasync and more.">
+    <link rel="icon" href="capy.png" type="image/png">
+    <style>
+        :root {
+            --bg: #09090f;
+            --bg-2: #110f20;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.07);
+            --border: rgba(139,92,246,0.18);
+            --border-subtle: rgba(255,255,255,0.06);
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --accent-2: #c026d3;
+            --green: #22c55e;
+            --green-bg: rgba(34,197,94,0.1);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-subtle: #64748b;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --code-bg: rgba(0,0,0,0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bg-glow {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .bg-glow::before {
+            content: "";
+            position: absolute; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(124,58,237,0.14) 0%, transparent 70%);
+            top: -250px; right: -100px;
+            animation: driftA 28s ease-in-out infinite;
+        }
+        .bg-glow::after {
+            content: "";
+            position: absolute; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(192,38,211,0.09) 0%, transparent 70%);
+            bottom: -150px; left: -100px;
+            animation: driftB 22s ease-in-out infinite;
+        }
+        @keyframes driftA {
+            0%,100%{transform:translate(0,0)}
+            40%{transform:translate(-60px,60px)}
+            70%{transform:translate(30px,-40px)}
+        }
+        @keyframes driftB {
+            0%,100%{transform:translate(0,0)}
+            33%{transform:translate(50px,-50px)}
+            66%{transform:translate(-30px,40px)}
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 62px; display: flex; align-items: center; padding: 0 32px;
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            background: rgba(9,9,15,0.85); border-bottom: 1px solid var(--border-subtle);
+        }
+        .nav-inner {
+            max-width: 1200px; width: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: var(--text); font-weight: 700; font-size: 1.05em;
+        }
+        .nav-logo img { width: 26px; height: 26px; object-fit: contain; }
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.88em; font-weight: 500; transition: color 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); }
+        .nav-cta {
+            background: linear-gradient(135deg,var(--accent),var(--accent-2)) !important;
+            color: white !important; padding: 7px 18px; border-radius: 8px;
+        }
+        .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* HERO */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex; align-items: center;
+            padding: 100px 32px 70px;
+        }
+        .hero-inner {
+            max-width: 1200px; width: 100%; margin: 0 auto;
+            display: grid; gap: 60px;
+            align-items: center;
+        }
+        @media (min-width: 900px) { .hero-inner { grid-template-columns: 1fr 1fr; } }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 100px; padding: 5px 16px;
+            font-size: 0.8em; color: var(--accent-light); margin-bottom: 22px; font-weight: 500;
+        }
+        .hero h1 {
+            font-size: clamp(2.8em,6vw,4.5em);
+            font-weight: 800; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 18px;
+            background: linear-gradient(140deg, #f1f5f9 20%, #a78bfa 55%, #c084fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.1em; color: var(--text-muted); line-height: 1.75; margin-bottom: 32px;
+        }
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 26px; border-radius: 10px;
+            font-weight: 600; font-size: 0.92em;
+            text-decoration: none; transition: all 0.2s;
+            cursor: pointer; border: none; font-family: inherit;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg,var(--accent),var(--accent-2));
+            color: white; box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.5); }
+        .btn-secondary {
+            background: var(--surface); color: var(--text); border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--surface-hover); transform: translateY(-2px); }
+        .btn-sm { padding: 8px 18px; font-size: 0.84em; border-radius: 8px; }
+
+        .hero-stats {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+        }
+        .hero-stat {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm); padding: 16px; text-align: center;
+            transition: all 0.2s;
+        }
+        .hero-stat:hover { border-color: var(--border); background: var(--surface-hover); }
+        .hero-stat-val { font-size: 1.4em; font-weight: 800; color: var(--accent-light); display: block; margin-bottom: 3px; }
+        .hero-stat-lbl { font-size: 0.75em; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        .loading-val {
+            display: inline-block; min-width: 60px; min-height: 1.2em;
+            background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+            border-radius: 4px; color: transparent;
+        }
+
+        /* SECTIONS */
+        .section { position: relative; z-index: 1; padding: 70px 32px; }
+        .section-inner { max-width: 1200px; margin: 0 auto; }
+        .section-head { margin-bottom: 40px; }
+        .section-title { font-size: 1.9em; font-weight: 800; letter-spacing: -0.02em; }
+        .section-title span {
+            background: linear-gradient(135deg,var(--accent-light),var(--accent-2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .section-sub { color: var(--text-muted); margin-top: 8px; font-size: 0.95em; }
+        .section-divider {
+            max-width: 1200px; margin: 0 auto; border: none; border-top: 1px solid var(--border-subtle);
+        }
+
+        /* FEATURES GRID */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+            gap: 16px;
+        }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); padding: 22px; transition: all 0.25s;
+        }
+        .feature-card:hover { border-color: var(--border); background: var(--surface-hover); transform: translateY(-3px); }
+        .feature-icon { font-size: 1.7em; margin-bottom: 12px; display: block; }
+        .feature-title { font-size: 0.98em; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+        .feature-desc { font-size: 0.85em; color: var(--text-muted); line-height: 1.65; }
+
+        /* RELEASES */
+        .latest-release {
+            background: linear-gradient(135deg,rgba(124,58,237,0.12),rgba(192,38,211,0.06));
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden;
+        }
+        .latest-release::before {
+            content: "LATEST";
+            position: absolute; top: 16px; right: 16px;
+            background: var(--green-bg); border: 1px solid rgba(34,197,94,0.3);
+            color: var(--green); font-size: 0.68em; font-weight: 700;
+            letter-spacing: 0.1em; padding: 3px 10px; border-radius: 100px;
+        }
+        .release-tag {
+            font-size: 1.3em; font-weight: 800; color: var(--accent-light); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .release-date { font-size: 0.82em; color: var(--text-subtle); margin-bottom: 16px; }
+        .release-body { font-size: 0.88em; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; }
+        .release-body ul { padding-left: 18px; margin: 8px 0; }
+        .release-body li { margin-bottom: 4px; }
+        .release-body strong { color: var(--text); }
+        .release-body code {
+            background: var(--code-bg); border: 1px solid var(--border-subtle);
+            padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+            font-family: 'SF Mono','Fira Mono','Consolas',monospace;
+        }
+        .release-dl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .release-dl-size { font-size: 0.8em; color: var(--text-subtle); }
+        .release-list { display: flex; flex-direction: column; gap: 12px; }
+        .release-item {
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm); padding: 18px 20px;
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 16px; transition: all 0.2s;
+        }
+        .release-item:hover { border-color: var(--border); background: var(--surface-hover); }
+        .release-item-left { flex: 1; min-width: 0; }
+        .release-item-tag { font-size: 0.95em; font-weight: 700; color: var(--accent-light); margin-bottom: 4px; }
+        .release-item-date { font-size: 0.78em; color: var(--text-subtle); }
+        .release-item-right { flex-shrink: 0; }
+        .releases-error { color: var(--text-subtle); font-size: 0.9em; padding: 20px 0; }
+
+        /* ENV VARS TABLE */
+        .env-table-wrap { overflow-x: auto; }
+        .env-table {
+            width: 100%; border-collapse: collapse; font-size: 0.88em;
+        }
+        .env-table th {
+            background: rgba(124,58,237,0.12); color: var(--accent-light);
+            padding: 12px 16px; text-align: left; font-weight: 700;
+            font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--border);
+        }
+        .env-table td {
+            padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-muted); vertical-align: top; line-height: 1.6;
+        }
+        .env-table tr:last-child td { border-bottom: none; }
+        .env-table tr:hover td { background: var(--surface); }
+        .env-table code {
+            background: var(--code-bg); border: 1px solid var(--border-subtle);
+            padding: 2px 7px; border-radius: 4px; font-size: 0.9em; color: var(--accent-light);
+            font-family: 'SF Mono','Fira Mono','Consolas',monospace; white-space: nowrap;
+        }
+        .env-source {
+            display: inline-block; font-size: 0.72em; font-weight: 700; letter-spacing: 0.05em;
+            padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+        }
+        .env-source-dw { background: rgba(124,58,237,0.15); color: var(--accent-light); border: 1px solid rgba(124,58,237,0.25); }
+        .env-source-sp { background: rgba(192,38,211,0.12); color: #e879f9; border: 1px solid rgba(192,38,211,0.25); }
+
+        /* INSTALL GUIDE */
+        .install-tabs {
+            display: flex; gap: 8px; margin-bottom: 36px;
+            justify-content: center;
+        }
+        .install-tab {
+            padding: 9px 24px; border-radius: 100px; font-size: 0.88em; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border-subtle);
+            background: var(--surface); color: var(--text-muted); transition: all 0.2s;
+            font-family: inherit;
+        }
+        .install-tab:hover { border-color: var(--border); color: var(--text); }
+        .install-tab.active {
+            background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.5);
+            color: var(--accent-light);
+        }
+        .install-panel { display: none; }
+        .install-panel.active { display: block; }
+        /* Timeline */
+        .install-steps {
+            max-width: 620px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 0;
+            position: relative;
+        }
+        .install-steps::before {
+            content: "";
+            position: absolute; left: 19px; top: 42px; bottom: 42px; width: 2px;
+            background: linear-gradient(to bottom,
+                rgba(124,58,237,0.4) 0%, rgba(124,58,237,0.15) 70%, transparent 100%);
+        }
+        .install-step {
+            display: flex; gap: 18px; align-items: flex-start;
+            padding-bottom: 12px; position: relative;
+        }
+        .install-step:last-child { padding-bottom: 0; }
+        .step-num {
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            background: #0f0d1f; border: 2px solid rgba(124,58,237,0.55);
+            color: var(--accent-light); font-weight: 800; font-size: 0.9em;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1; margin-top: 2px;
+            box-shadow: 0 0 0 4px #09090f;
+        }
+        .step-card {
+            flex: 1;
+            background: var(--surface); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .step-card:hover { border-color: var(--border); background: var(--surface-hover); }
+        .install-step:last-child .step-card { margin-bottom: 0; }
+        .step-title { font-size: 0.95em; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+        .step-desc { font-size: 0.87em; color: var(--text-muted); line-height: 1.7; }
+        .step-desc a { color: var(--accent-light); text-decoration: none; }
+        .step-desc a:hover { text-decoration: underline; }
+        .code-block {
+            background: var(--code-bg); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px;
+            font-family: 'SF Mono','Fira Mono','Consolas',monospace;
+            font-size: 0.83em; color: #a5f3fc; overflow-x: auto; line-height: 1.7;
+        }
+        .info-box {
+            background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
+            border-radius: var(--radius); padding: 14px 18px; margin-top: 16px;
+            font-size: 0.86em; color: var(--text-muted); line-height: 1.7;
+            max-width: 620px; margin-left: auto; margin-right: auto;
+        }
+        .info-box strong { color: var(--accent-light); }
+
+        /* FOOTER */
+        .footer { position: relative; z-index: 1; border-top: 1px solid var(--border-subtle); padding: 36px 32px; }
+        .footer-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; margin-bottom: 16px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.87em; font-weight: 500; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--text); }
+        .footer-copy { font-size: 0.82em; color: var(--text-subtle); }
+
+        @keyframes fadeUp {
+            from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)}
+        }
+
+        @media (max-width: 768px) {
+            .nav { padding: 0 18px; }
+            .nav-links a:not(.nav-cta) { display: none; }
+            .hero { padding: 80px 18px 60px; }
+            .section { padding: 60px 18px; }
+            .hero-stats { grid-template-columns: repeat(3,1fr); }
+            .section-title { font-size: 1.6em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a class="nav-logo" href="index.html">
+            <img src="capy.png" alt=""> Launcher.moe
+        </a>
+        <div class="nav-links">
+            <a href="dwproton.html" class="active">DWProton</a>
+            <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
+            <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" class="nav-cta">Donate</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <div>
+            <h1>DWProton</h1>
+            <p class="hero-sub">An Anime Team's custom Proton fork with optimized performance and targeted fixes for anime games on Linux, built on top of Proton-CachyOS</p>
+            <div class="hero-actions">
+                <a href="#install" class="btn btn-primary">Install Guide</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener" class="btn btn-secondary">All Releases</a>
+            </div>
+        </div>
+        <div>
+            <div class="hero-stats">
+                <div class="hero-stat"><span class="hero-stat-val" id="repoStars"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="hero-stat-lbl">Stars</span></div>
+                <div class="hero-stat"><span class="hero-stat-val" id="repoReleases"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="hero-stat-lbl">Releases</span></div>
+                <div class="hero-stat"><span class="hero-stat-val" id="repoWatchers"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="hero-stat-lbl">Watchers</span></div>
+            </div>
+            <div id="latestHeroBadge" style="margin-top:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);font-size:0.88em;color:var(--text-muted);">
+                <span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Features -->
+<section class="section" id="features">
+    <div class="section-inner">
+        <div class="section-head">
+            <h2 class="section-title">Why <span>DWProton</span>?</h2>
+            <p class="section-sub">Purpose-built for Linux anime game players with specific patches for the games</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card" style="animation:fadeUp 0.5s ease 0s both">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-title">Based on Proton-CachyOS</div>
+                <div class="feature-desc">Includes all latest Proton-CachyOS features, performance patches, and upstream improvements</div>
+            </div>
+            <div class="feature-card" style="animation:fadeUp 0.5s ease 0.07s both">
+                <span class="feature-icon">🎮</span>
+                <div class="feature-title">Anime Game Fixes</div>
+                <div class="feature-desc">Dedicated patches for some anime games ensuring they work on Linux on or shortly after release</div>
+            </div>
+            <div class="feature-card" style="animation:fadeUp 0.5s ease 0.14s both">
+                <span class="feature-icon">🔧</span>
+                <div class="feature-title">Proton-EM Compatibility</div>
+                <div class="feature-desc">Includes additional game compatibility fixes from Proton-EM</div>
+            </div>
+            <div class="feature-card" style="animation:fadeUp 0.5s ease 0.21s both">
+                <span class="feature-icon">🎨</span>
+                <div class="feature-title">DXVK-gplasync &amp; LLAsync</div>
+                <div class="feature-desc">Bundled DXVK-gplasync for async shader compilation and llasync for low-latency frame pacing</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Latest Release -->
+<section class="section" id="releases">
+    <div class="section-inner">
+        <div class="section-head">
+            <h2 class="section-title">Latest <span>Releases</span></h2>
+            <p class="section-sub">Always up to date with the latest Proton-CachyOS base and anime game fixes</p>
+        </div>
+        <div id="latestRelease">
+            <div style="background:var(--surface);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:28px">
+                <div class="loading-val" style="min-width:200px;min-height:1.4em;display:block;margin-bottom:14px">&nbsp;</div>
+                <div class="loading-val" style="min-width:140px;min-height:1em;display:block;margin-bottom:18px">&nbsp;</div>
+                <div class="loading-val" style="min-width:100%;min-height:4em;display:block">&nbsp;</div>
+            </div>
+        </div>
+        <div style="margin-top: 12px;">
+            <div class="section-head" style="margin-top:30px;margin-bottom:16px">
+                <h3 style="font-size:1.1em;font-weight:700;color:var(--text-muted)">Previous Releases</h3>
+            </div>
+            <div id="releasesList">
+                <div style="color:var(--text-subtle);font-size:0.9em">Loading releases…</div>
+            </div>
+            <div style="margin-top:16px;text-align:center">
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View All Releases on Forgejo →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Install Guide -->
+<section class="section" id="install">
+    <div class="section-inner">
+        <div class="section-head">
+            <h2 class="section-title">Installation <span>Guide</span></h2>
+            <p class="section-sub">Get DWProton running in minutes</p>
+        </div>
+        <div class="install-tabs">
+            <button class="install-tab active" data-tab="protonplus">ProtonPlus (Recommended)</button>
+            <button class="install-tab" data-tab="manual">Manual</button>
+        </div>
+        <div class="install-panel active" id="panel-protonplus">
+            <div class="install-steps">
+                <div class="install-step">
+                    <div class="step-num">1</div>
+                    <div class="step-card">
+                        <div class="step-title">Install ProtonPlus</div>
+                        <div class="step-desc">
+                            Install ProtonPlus from Flathub for easy proton installation management.<br>
+                            <a href="https://flathub.org/apps/com.vysp3r.ProtonPlus" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px">→ Get ProtonPlus on Flathub</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">2</div>
+                    <div class="step-card">
+                        <div class="step-title">Open ProtonPlus</div>
+                        <div class="step-desc">Launch ProtonPlus and navigate to the install/manage Proton builds section.</div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">3</div>
+                    <div class="step-card">
+                        <div class="step-title">Find and Install DWProton</div>
+                        <div class="step-desc">Search for <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace">dwproton</code> in the list and click Install. ProtonPlus handles everything automatically.</div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">4</div>
+                    <div class="step-card">
+                        <div class="step-title">Restart Steam</div>
+                        <div class="step-desc">Restart Steam to detect the new Proton build. Then select DWProton in a game's compatibility settings under Properties → Compatibility.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="install-panel" id="panel-manual">
+            <div class="install-steps">
+                <div class="install-step">
+                    <div class="step-num">1</div>
+                    <div class="step-card">
+                        <div class="step-title">Download the latest release</div>
+                        <div class="step-desc">
+                            Go to the <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener">releases page</a> and download the latest <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace">dwproton-x.x.x-x86_64.tar.xz</code>.
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">2</div>
+                    <div class="step-card">
+                        <div class="step-title">Create the compatibility tools directory</div>
+                        <div class="step-desc">
+                            If it doesn't already exist:
+                            <div class="code-block">mkdir -p ~/.steam/root/compatibilitytools.d/</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">3</div>
+                    <div class="step-card">
+                        <div class="step-title">Extract the archive</div>
+                        <div class="step-desc">
+                            Extract directly into the compatibility tools directory:
+                            <div class="code-block">tar -xf dwproton-x.x.x-x86_64.tar.xz -C ~/.steam/root/compatibilitytools.d/</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="step-num">4</div>
+                    <div class="step-card">
+                        <div class="step-title">Restart Steam and select DWProton</div>
+                        <div class="step-desc">Restart the Steam client and select DWProton in the game's compatibility settings under Properties → Compatibility.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-box">
+                <strong>Tip:</strong> When launching anime games outside of Steam (e.g. via Heroic or Lutris), we recommend setting <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;font-family:monospace">UMU_USE_STEAM=1</code> for best compatibility.
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Environment Variables -->
+<section class="section" id="config">
+    <div class="section-inner">
+        <div class="section-head">
+            <h2 class="section-title">Environment <span>Variables</span></h2>
+            <p class="section-sub">DWProton-specific runtime options. Set these as Steam launch options before <code style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.9em">%command%</code>.</p>
+        </div>
+        <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:0.82em">
+            <span style="display:flex;align-items:center;gap:6px"><span class="env-source env-source-dw">dwproton</span> DWProton patches</span>
+            <span style="display:flex;align-items:center;gap:6px"><span class="env-source env-source-sp">spritz</span> Spritz Wine patches</span>
+        </div>
+        <div class="env-table-wrap">
+            <table class="env-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Value</th>
+                        <th>Effect</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>PROTON_DXVK_GPLASYNC</code></td>
+                        <td><code>1</code></td>
+                        <td>Enables DXVK-gplasync for async shader compilation, not recommended for multiplayer games with anti-cheat.</td>
+                        <td><span class="env-source env-source-dw">dwproton</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>PROTON_DXVK_LLASYNC</code></td>
+                        <td><code>1</code></td>
+                        <td>Enables both gplasync and lowlatency async functionalities in DXVK, implies <code>PROTON_DXVK_GPLASYNC=1</code>.</td>
+                        <td><span class="env-source env-source-dw">dwproton</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>PROTON_USE_WINEALSA</code></td>
+                        <td><code>1</code></td>
+                        <td>Uses WineAlsa audio backend, may fix audio crackling in some games.</td>
+                        <td><span class="env-source env-source-dw">dwproton</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>WINE_USE_TAKE_FOCUS</code></td>
+                        <td><code>1</code></td>
+                        <td>Fixes games dropping inputs after Alt+Tab.</td>
+                        <td><span class="env-source env-source-sp">spritz</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>WINE_DISABLE_DISCONNECT</code></td>
+                        <td><code>1</code></td>
+                        <td>Disables the disconnect trick that is enabled by default for certain games.</td>
+                        <td><span class="env-source env-source-sp">spritz</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>WINE_ENABLE_DISCONNECT</code></td>
+                        <td><code>1</code></td>
+                        <td>Forces the disconnect trick for any game (useful when the game needs it but it's not auto-enabled).</td>
+                        <td><span class="env-source env-source-sp">spritz</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>WINE_ENABLE_TIMEOUT_FIX</code></td>
+                        <td><code>1</code></td>
+                        <td>Fixes connection timeout issues when launching certain anime games. Helps if the game fails to start due to connection errors.</td>
+                        <td><span class="env-source env-source-sp">spritz</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>UMU_USE_STEAM</code></td>
+                        <td><code>1</code></td>
+                        <td>Recommended when launching games outside of Steam (Heroic, Lutris, etc.) for better compatibility.</td>
+                        <td>umu</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-links">
+            <a href="https://discord.gg/ck37X6UWBp" target="_blank" rel="noopener">Discord</a>
+            <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener">Donate</a>
+        </div>
+        <p class="footer-copy">DWProton is maintained by <a href="https://opencollective.com/dawn-winery" target="_blank" rel="noopener" style="color:var(--text-muted)">An Anime Team</a>. Based on <a href="https://github.com/CachyOS/proton-cachyos" target="_blank" rel="noopener" style="color:var(--text-muted)">Proton-CachyOS</a>.</p>
+    </div>
+</footer>
+
+<script>
+function escHTML(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+    return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const d = Math.floor(diff/86400000);
+    if (d === 0) return 'today';
+    if (d === 1) return 'yesterday';
+    if (d < 7) return d+' days ago';
+    if (d < 30) return Math.floor(d/7)+' week'+(d<14?'':'s')+' ago';
+    if (d < 365) return Math.floor(d/30)+' month'+(d<60?'':'s')+' ago';
+    return Math.floor(d/365)+' year'+(d<730?'':'s')+' ago';
+}
+
+// Simple markdown-ish renderer for release bodies
+function renderMarkdown(text) {
+    if (!text) return '';
+    let html = escHTML(text);
+    // Bold
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--accent-light)">$1</a>');
+    // Bullets
+    html = html.replace(/^[\s]*[-•◦]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+    // Headers
+    html = html.replace(/^#+\s+(.+)$/gm, '<strong>$1</strong>');
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    return html;
+}
+
+// Install tabs
+document.querySelectorAll('.install-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.install-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.install-panel').forEach(p=>p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    });
+});
+
+async function loadRepoStats() {
+    // Direct Forgejo API has no CORS headers; use shields.io endpoints instead
+    const setFallback = () => {
+        document.getElementById('repoStars').textContent = '32';
+        document.getElementById('repoReleases').textContent = '31';
+        document.getElementById('repoWatchers').textContent = '9';
+    };
+    try {
+        const G = 'gitea_url=https://dawn.wine';
+        const DYN = 'https://img.shields.io/badge/dynamic/json.json?url=https%3A%2F%2Fdawn.wine%2Fapi%2Fv1%2Frepos%2Fdawn-winery%2Fdwproton';
+        const [sd, rd, wd] = await Promise.all([
+            fetch(`https://img.shields.io/gitea/stars/dawn-winery/dwproton.json?${G}`).then(r=>r.json()),
+            fetch(`${DYN}&query=%24.release_counter&label=releases`).then(r=>r.json()),
+            fetch(`${DYN}&query=%24.watchers_count&label=watchers`).then(r=>r.json()),
+        ]);
+        document.getElementById('repoStars').textContent = (!sd.isError && sd.message) ? sd.message : '32';
+        document.getElementById('repoReleases').textContent = (!rd.isError && rd.message && rd.message !== 'no result') ? rd.message : '31';
+        document.getElementById('repoWatchers').textContent = (!wd.isError && wd.message && wd.message !== 'no result') ? wd.message : '9';
+    } catch { setFallback(); }
+}
+
+async function loadReleases() {
+    // Use shields.io dynamic badge to proxy the Forgejo releases API (no CORS headers on dawn.wine)
+    const ENC_URL = encodeURIComponent('https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=8&page=1');
+    const BASE = `https://img.shields.io/badge/dynamic/json.json?url=${ENC_URL}`;
+    try {
+        const [tagsD, datesD, bodyD] = await Promise.all([
+            fetch(`${BASE}&query=${encodeURIComponent('$[*].tag_name')}&label=tags`).then(r=>r.json()),
+            fetch(`${BASE}&query=${encodeURIComponent('$[*].published_at')}&label=dates`).then(r=>r.json()),
+            fetch(`${BASE}&query=${encodeURIComponent('$[0].body')}&label=body`).then(r=>r.json()),
+        ]);
+        if (tagsD.isError || !tagsD.message || tagsD.message === 'no result') throw new Error();
+
+        const tags  = tagsD.message.split(', ');
+        const dates = (!datesD.isError && datesD.message) ? datesD.message.split(', ') : [];
+        const body  = (!bodyD.isError && bodyD.message && bodyD.message !== 'no result') ? bodyD.message : '';
+
+        renderLatestRelease(tags[0], dates[0] || null, body);
+        renderReleasesList(tags.slice(1), dates.slice(1));
+    } catch {
+        renderStaticLatest();
+        renderStaticReleasesList();
+    }
+}
+
+function renderLatestRelease(tag, dateStr, body) {
+    const dateHtml = dateStr
+        ? `Released ${timeAgo(dateStr)} - ${new Date(dateStr).toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}`
+        : 'Recently released';
+    document.getElementById('latestRelease').innerHTML = `
+        <div class="latest-release">
+            <div class="release-tag"><span>🏷️</span> ${escHTML(tag)}</div>
+            <div class="release-date">${dateHtml}</div>
+            ${body ? `<div class="release-body">${renderMarkdown(body)}</div>` : ''}
+            <div class="release-dl">
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">⬇️ Download ${escHTML(tag)}</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View on Forgejo</a>
+            </div>
+        </div>`;
+    document.getElementById('latestHeroBadge').innerHTML =
+        `<strong style="color:var(--accent-light)">${escHTML(tag)}</strong> - released ${dateStr ? timeAgo(dateStr) : 'recently'}`;
+}
+
+function renderReleasesList(tags, dates) {
+    if (!tags.length) {
+        document.getElementById('releasesList').innerHTML = '<p style="color:var(--text-subtle);font-size:0.88em">No previous releases to show.</p>';
+        return;
+    }
+    document.getElementById('releasesList').innerHTML = `<div class="release-list">${tags.map((tag, i) => {
+        const d = dates[i];
+        const dateText = d ? `${timeAgo(d)} · ${new Date(d).toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'})}` : '';
+        return `
+        <div class="release-item">
+            <div class="release-item-left">
+                <div class="release-item-tag">🏷️ ${escHTML(tag)}</div>
+                ${dateText ? `<div class="release-item-date">${dateText}</div>` : ''}
+            </div>
+            <div class="release-item-right">
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(tag)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View →</a>
+            </div>
+        </div>`;
+    }).join('')}</div>`;
+}
+
+function renderStaticLatest() {
+    document.getElementById('latestRelease').innerHTML = `
+        <div class="latest-release">
+            <div class="release-tag"><span>🏷️</span> dwproton-11.0-3</div>
+            <div class="release-date">Released last week</div>
+            <div class="release-body">
+                <ul>
+                    <li>Updated Proton and components to <strong>cachyos-11.0-20260521-slr</strong></li>
+                    <li>Includes more work on media playback patches (Persona 5 Strikers, Darksiders Warmastered Edition)</li>
+                    <li>Updated wine submodule to <strong>dwproton-11.0-3</strong></li>
+                    <li>Added dxvk-llasync/proton: <code>PROTON_DXVK_GPLASYNC</code> option</li>
+                </ul>
+            </div>
+            <div class="release-dl">
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/dwproton-11.0-3" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Release</a>
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">All Releases</a>
+            </div>
+        </div>`;
+    document.getElementById('latestHeroBadge').innerHTML =
+        '<strong style="color:var(--accent-light)">dwproton-11.0-3</strong> — released last week';
+}
+
+function renderStaticReleasesList() {
+    const staticReleases = [
+        {tag:'dwproton-11.0-2', date:'2 weeks ago'},
+        {tag:'dwproton-11.0-1', date:'4 weeks ago'},
+        {tag:'dwproton-10.0-26', date:'last month'},
+        {tag:'dwproton-10.0-25', date:'last month'},
+        {tag:'dwproton-10.0-24', date:'last month'},
+        {tag:'dwproton-10.0-23', date:'2 months ago'},
+    ];
+    document.getElementById('releasesList').innerHTML = `<div class="release-list">${staticReleases.map(r=>`
+        <div class="release-item">
+            <div class="release-item-left">
+                <div class="release-item-tag">🏷️ ${escHTML(r.tag)}</div>
+                <div class="release-item-date">${escHTML(r.date)}</div>
+            </div>
+            <div class="release-item-right">
+                <a href="https://dawn.wine/dawn-winery/dwproton/releases/tag/${escAttr(r.tag)}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">View →</a>
+            </div>
+        </div>`).join('')}</div>`;
+}
+
+async function init() {
+    await Promise.all([loadRepoStats(), loadReleases()]);
+}
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+</script>
+</body>
+</html>
