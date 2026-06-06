@@ -462,7 +462,8 @@
 <div class="stats-wrap">
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Total Flathub Installs</span></div>
-        <div class="stat-card"><span class="stat-icon">🍷</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">DWProton Downloads</span></div>
+        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Flathub Installs / Month</span></div>
+        <div class="stat-card"><span class="stat-icon">⭐</span><span class="stat-value"><span class="loading-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span class="stat-label">Total GitHub Stars</span></div>
     </div>
 </div>
 
@@ -661,20 +662,17 @@ async function loadLauncherStats() {
     }));
 }
 
-async function loadDWProtonStats() {
-    // Sum download_count of .tar.xz assets across all releases from Forgejo API
-    try {
-        const r = await fetch('https://dawn.wine/api/v1/repos/dawn-winery/dwproton/releases?limit=50&page=1');
-        if (!r.ok) return 0;
-        const releases = await r.json();
-        let total = 0;
-        for (const rel of releases) {
-            for (const asset of (rel.assets||[])) {
-                if (asset.name && asset.name.endsWith('.tar.xz')) total += asset.download_count||0;
-            }
-        }
-        return total;
-    } catch { return 0; }
+async function loadGitHubStars() {
+    let total = 0;
+    await Promise.all(LAUNCHERS.map(async l => {
+        try {
+            const r = await fetch(`https://img.shields.io/github/stars/an-anime-team/${l.repoShort}.json`);
+            if (!r.ok) return;
+            const d = await r.json();
+            if (!d.isError && d.message) total += parseShieldsNum(d.message);
+        } catch {}
+    }));
+    return total;
 }
 
 async function loadOCData() {
@@ -690,15 +688,16 @@ async function loadOCData() {
     } catch { return {summary:null, members:[]}; }
 }
 
-function renderStats(dwprotonDownloads) {
-    let totalInstalls = 0;
+function renderStats(githubStars) {
+    let totalInstalls = 0, totalMonth = 0;
     for (const l of LAUNCHERS) {
         const s = launcherStats[l.flathubId];
-        if (s) totalInstalls += s.total;
+        if (s) { totalInstalls += s.total; totalMonth += s.month; }
     }
     document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card"><span class="stat-icon">📦</span><span class="stat-value">${totalInstalls>0?fmtNum(totalInstalls):'—'}</span><span class="stat-label">Total Flathub Installs</span></div>
-        <div class="stat-card"><span class="stat-icon">🍷</span><span class="stat-value">${dwprotonDownloads>0?fmtNum(dwprotonDownloads):'—'}</span><span class="stat-label">DWProton Downloads</span></div>
+        <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value">${totalMonth>0?fmtNum(totalMonth):'—'}</span><span class="stat-label">Flathub Installs / Month</span></div>
+        <div class="stat-card"><span class="stat-icon">⭐</span><span class="stat-value">${githubStars>0?fmtNum(githubStars):'—'}</span><span class="stat-label">Total GitHub Stars</span></div>
     `;
 }
 
@@ -839,8 +838,8 @@ document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 async function init() {
-    const [, dwDl, ocData] = await Promise.all([loadLauncherStats(), loadDWProtonStats(), loadOCData()]);
-    renderStats(dwDl);
+    const [, githubStars, ocData] = await Promise.all([loadLauncherStats(), loadGitHubStars(), loadOCData()]);
+    renderStats(githubStars);
     renderLaunchers();
     renderOCSection(ocData.summary, ocData.members);
     renderTeam();
