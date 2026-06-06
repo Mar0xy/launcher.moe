@@ -703,18 +703,22 @@ document.querySelectorAll('.install-tab').forEach(tab => {
 });
 
 async function loadRepoStats() {
-    try {
-        const r = await fetch('https://dawn.wine/api/v1/repos/dawn-winery/dwproton');
-        if (!r.ok) throw new Error();
-        const data = await r.json();
-        document.getElementById('repoStars').textContent = data.stars_count ?? '—';
-        document.getElementById('repoReleases').textContent = data.releases_count ?? '31';
-        document.getElementById('repoWatchers').textContent = data.watchers_count ?? '—';
-    } catch {
+    // Direct Forgejo API has no CORS headers; use shields.io Gitea endpoints instead
+    const setFallback = () => {
         document.getElementById('repoStars').textContent = '32';
-        document.getElementById('repoReleases').textContent = '31';
+        document.getElementById('repoReleases').textContent = '31+';
         document.getElementById('repoWatchers').textContent = '9';
-    }
+    };
+    try {
+        const P = 'gitea_url=https://dawn.wine';
+        const [sd, fd] = await Promise.all([
+            fetch(`https://img.shields.io/gitea/stars/dawn-winery/dwproton.json?${P}`).then(r=>r.json()),
+            fetch(`https://img.shields.io/gitea/forks/dawn-winery/dwproton.json?${P}`).then(r=>r.json()),
+        ]);
+        document.getElementById('repoStars').textContent = (!sd.isError && sd.message) ? sd.message : '32';
+        document.getElementById('repoReleases').textContent = '31+';
+        document.getElementById('repoWatchers').textContent = '9';
+    } catch { setFallback(); }
 }
 
 async function loadReleases() {
